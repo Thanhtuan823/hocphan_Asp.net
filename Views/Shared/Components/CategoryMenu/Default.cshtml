@@ -1,0 +1,14 @@
+﻿@model IEnumerable<lab2.Models.Categories>
+
+<ul class="list-group">
+    @foreach (var category in Model)
+    {
+        <li class="list-group-item">
+            <a asp-controller="Product"
+               asp-action="ProductByCategory"
+               asp-route-categoryId="@category.CategoryId">
+                @category.CategoryName
+            </a>
+        </li>
+    }
+</ul>

@@ -1,0 +1,77 @@
+﻿@model lab2.Models.Order
+@{
+    ViewData["Title"] = "Xác nhận đặt hàng";
+    var cart = ViewBag.Cart as SessionCart;
+}
+
+<h2>Xác nhận đặt hàng</h2>
+
+<!-- Hiển thị lỗi -->
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<form asp-controller="Order" asp-action="Checkout" method="post">
+    <div class="mb-3">
+        <label class="form-label">Tên người nhận</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Địa chỉ 1</label>
+        <input asp-for="Address1" class="form-control" />
+        <span asp-validation-for="Address1" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Địa chỉ 2 (tuỳ chọn)</label>
+        <input asp-for="Address2" class="form-control" />
+        <span asp-validation-for="Address2" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Thành phố</label>
+        <input asp-for="City" class="form-control" />
+        <span asp-validation-for="City" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Mã bưu điện</label>
+        <input asp-for="Zip" class="form-control" />
+        <span asp-validation-for="Zip" class="text-danger"></span>
+    </div>
+
+    <!-- Hiển thị giỏ hàng -->
+    <h4>Giỏ hàng của bạn</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Sản phẩm</th>
+                <th>Giá</th>
+                <th>Số lượng</th>
+                <th>Thành tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (cart != null && cart.Items.Any())
+            {
+                foreach (var item in cart.Items)
+                {
+                    <tr>
+                        <td>@item.ProductName</td>
+                        <td>@item.Price.ToString("c")</td>
+                        <td>@item.Quantity</td>
+                        <td>@(item.Price* item.Quantity).ToString("c")</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="4" class="text-center text-danger">Giỏ hàng trống</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-success">Xác nhận đặt hàng</button>
+</form>

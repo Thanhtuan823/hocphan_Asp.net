@@ -1,0 +1,41 @@
+﻿
+
+@model lab2.Models.Product
+<style>
+    .mb-3{
+        margin-top:2%;
+        margin-bottom:0;
+    }
+
+</style>
+
+<a asp-action="Index" class="btn btn-secondary mb-3 w-auto">Quay lại</a>
+<div class="container mt-4">
+    <h2 class="text-center mb-4 text-success">Chi tiết sản phẩm</h2>
+
+    <div class="row">
+        <div class="col-md-6">
+            <img src="@Model.ImageUrl" alt="@Model.ProductName" class="img-fluid rounded shadow-sm" />
+        </div>
+        <div class="col-md-6">
+            <div class="card border-0">
+                <div class="card-body">
+                    <h3 class="card-title text-success">@Model.ProductName</h3>
+                    <p class="card-text"><strong>Giá:</strong> @Model.Price.ToString("C")</p>
+                    <p class="card-text"><strong>Số lượng:</strong> @Model.Quantity</p>
+                    <p class="card-text"><strong>Mô tả:</strong> @Model.Description</p>
+                    <p class="card-text"><strong>Danh mục:</strong> @Model.Category.CategoryName</p>
+                    <p class="card-text">
+                        <form asp-controller="Cart" asp-action="AddToCart" method="post">
+                            <input type="hidden" name="productId" value="@Model.ProductId" />
+                            <button type="submit" class="btn btn-success btn-sm flex-fill text-center text-nowrap">
+                                <i class="bi bi-cart-plus"></i> Thêm vào giỏ
+                            </button>
+                        </form>
+                    </p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

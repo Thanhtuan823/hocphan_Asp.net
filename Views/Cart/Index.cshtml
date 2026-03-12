@@ -1,0 +1,129 @@
+﻿@model List<lab2.Models.CartItem>
+
+<div class="container my-5">
+    <h3 class="mb-4">🛒 Giỏ hàng của bạn</h3>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center fw-bold">
+            Giỏ hàng trống... Vui lòng ghé thăm 
+            <a asp-controller="Product" asp-action="Index" 
+               class="fw-bold text-decoration-none text-success">
+                các sản phẩm
+            </a> 
+            để tiếp tục mua sắm nhé.
+        </div>
+    }
+    else
+    {
+        <table class="table table-striped table-bordered align-middle" id="cartTable">
+            <thead class="table-dark">
+                <tr>
+                    <th>Hình ảnh</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Giá</th>
+                    <th>Số lượng</th>
+                    <th>Tổng</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr id="cart-item-@item.ProductId">
+                        <td>
+                            <img src="@item.ImageUrl" class="img-thumbnail" 
+                                 style="width:80px;height:80px;object-fit:cover;" />
+                        </td>
+                        <td>@item.ProductName</td>
+                        <td class="price">@item.Price.ToString("N0")</td>
+                        <td>
+                            <input type="number" class="quantity form-control w-50 text-center" 
+                                   value="@item.Quantity" min="1" 
+                                   data-productid="@item.ProductId" />
+                        </td>
+                        <td class="total">@item.Total.ToString("N0")</td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm"
+                                    onclick="removeFromCart(@item.ProductId)">
+                                <i class="bi bi-trash"></i> Xóa
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="text-end mt-3">
+            <h4>
+                Tổng cộng: 
+                <span id="grandTotal">@Model.Sum(i => i.Total).ToString("N0") đ</span>
+            </h4>
+            <a asp-controller="Order" asp-action="Checkout" class="btn btn-success">
+                Thanh toán
+            </a>
+            <a asp-controller="Product" asp-action="Index" class="btn btn-secondary">
+                Tiếp tục mua sắm
+            </a>
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+    function updateTotals() {
+        let grandTotal = 0;
+        document.querySelectorAll("#cartTable tbody tr").forEach(row => {
+            let price = parseFloat(row.querySelector(".price").innerText.replace(/\D/g, ""));
+            let qty = parseInt(row.querySelector(".quantity").value);
+            let total = price * qty;
+            row.querySelector(".total").innerText = total.toLocaleString("vi-VN");
+            grandTotal += total;
+        });
+        document.getElementById("grandTotal").innerText = grandTotal.toLocaleString("vi-VN") + " đ";
+    }
+
+    // Gọi khi load trang
+    updateTotals();
+
+    // Gọi khi thay đổi số lượng
+    document.querySelectorAll(".quantity").forEach(input => {
+        input.addEventListener("change", function () {
+            updateTotals();
+
+            // Gửi request cập nhật số lượng vào server
+            fetch('/Cart/UpdateQuantity', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    productId: this.dataset.productid,
+                    quantity: this.value
+                })
+            });
+        });
+    });
+
+    // Hàm xóa sản phẩm khỏi giỏ
+    function removeFromCart(productId) {
+        fetch('/Cart/RemoveFromCart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'productId=' + productId
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Cập nhật số lượng trên biểu tượng giỏ hàng
+                document.getElementById("cart-count").innerText = data.count;
+
+                // Xóa dòng sản phẩm khỏi bảng
+                const row = document.getElementById("cart-item-" + productId);
+                if (row) row.remove();
+
+                // Cập nhật lại tổng cộng
+                updateTotals();
+            }
+        });
+    }
+</script>
+}

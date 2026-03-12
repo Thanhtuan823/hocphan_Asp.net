@@ -1,0 +1,18 @@
+﻿@model lab2.Models.Categories
+
+<div class="container my-4">
+    <h3 class="text-success">✏️ Sửa danh mục</h3>
+
+    <form asp-action="UpdateCategory" asp-route-id="@Model.CategoryId" method="post">
+        <div class="mb-3">
+            <label class="form-label">Tên danh mục</label>
+            <input asp-for="CategoryName" class="form-control" />
+            <span asp-validation-for="CategoryName" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save"></i> Lưu thay đổi
+        </button>
+        <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+    </form>
+</div>

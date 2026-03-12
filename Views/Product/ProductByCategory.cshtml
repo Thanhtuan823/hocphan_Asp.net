@@ -1,0 +1,30 @@
+﻿@model lab2.Models.ProductByCategoryViewModel
+
+<h2 class="text-success mb-4 text-center">🌱 Sản phẩm thuộc danh mục: @Model.CategoryName</h2>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    @foreach (var product in Model.Products)
+    {
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <img src="@product.ImageUrl" class="card-img-top" alt="@product.ProductName" style="height:200px;object-fit:cover;" />
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title fw-bold">@product.ProductName</h5>
+                    <p class="card-text text-success fw-bold">@product.Price.ToString("C")</p>
+                    <div class="mt-auto d-flex justify-content-center gap-2">
+                        <!-- Nút xem chi tiết -->
+                        @Html.ActionLink("Xem chi tiết", "Details", new { id = product.ProductId }, new { @class = "btn btn-outline-success btn-sm" })
+
+                        <!-- Nút thêm vào giỏ hàng -->
+                        <a asp-controller="Cart"
+                           asp-action="AddToCart"
+                           asp-route-productId="@product.ProductId"
+                           class="btn btn-success btn-sm">
+                            <i class="bi bi-cart-plus"></i> Thêm vào giỏ
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
