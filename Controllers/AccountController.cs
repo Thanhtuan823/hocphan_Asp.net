@@ -23,6 +23,13 @@ namespace Shopping.Controllers
         {
             return View();
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            await signInManager.SignOutAsync();
+            return RedirectToAction("Auth", "Account"); // quay về trang đăng nhập/đăng ký
+        }
 
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel model)
@@ -34,6 +41,9 @@ namespace Shopping.Controllers
 
                 if (result.Succeeded)
                 {
+                    // Gán role User cho tài khoản mới
+                    await userManager.AddToRoleAsync(user, "User");
+
                     await signInManager.SignInAsync(user, isPersistent: false);
                     return RedirectToAction("Index", "Product");
                 }

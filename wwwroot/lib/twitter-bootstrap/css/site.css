@@ -1,0 +1,65 @@
+﻿/* Navbar cho Admin */
+.navbar-admin {
+    background-color: #2e7d32; /* xanh lá đậm */
+}
+
+/* Navbar cho User */
+.navbar-user {
+    background-color: #ffffff;
+    border-bottom: 3px solid #4caf50; /* xanh lá tươi */
+}
+
+/* Card Admin */
+.card-admin {
+    border: 1px solid #81c784;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Button mua hàng */
+.btn-buy {
+    background-color: #81c784;
+    color: #fff;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+    .btn-buy:hover {
+        background-color: #66bb6a;
+    }
+
+.table-success th {
+    background-color: #4caf50;
+    color: #fff;
+}
+
+.btn-outline-success:hover {
+    background-color: #66bb6a;
+    color: #fff;
+}
+
+.btn-outline-danger:hover {
+    background-color: #e53935;
+    color: #fff;
+}
+.card {
+    transition: transform 0.2s ease-in-out;
+}
+
+    .card:hover {
+        transform: scale(1.05);
+    }
+
+.card-title {
+    font-weight: bold;
+}
+
+
+.table-hover tbody tr:hover {
+    background-color: #f1f8e9;
+}
+
+
+.btn-outline-primary:hover {
+    background-color: #42a5f5;
+    color: #fff;
+}

@@ -30,6 +30,27 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
+// Seed role + admin user
+
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+
+    if (!await roleManager.RoleExistsAsync("Admin"))
+        await roleManager.CreateAsync(new IdentityRole("Admin"));
+    if (!await roleManager.RoleExistsAsync("User"))
+        await roleManager.CreateAsync(new IdentityRole("User"));
+
+    var adminUser = await userManager.FindByEmailAsync("admin@lifeandtrees.com");
+    if (adminUser == null)
+    {
+        adminUser = new IdentityUser { UserName = "admin@lifeandtrees.com", Email = "admin@lifeandtrees.com" };
+        await userManager.CreateAsync(adminUser, "Admin@123");
+        await userManager.AddToRoleAsync(adminUser, "Admin");
+    }
+}
+
 // Pipeline
 if (!app.Environment.IsDevelopment())
 {

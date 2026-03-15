@@ -1,0 +1,40 @@
+﻿@model lab2.Models.AdminDashboard
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container mt-4">
+    <h2 class="text-success fw-bold mb-4">📊 Bảng điều khiển Admin</h2>
+    <div class="row g-4">
+        <!-- Người dùng -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-success">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-success">Người dùng</h5>
+                    <p class="display-6 fw-bold">@Model.TotalUsers</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Đơn hàng -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-success">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-success">Đơn hàng</h5>
+                    <p class="display-6 fw-bold">@Model.TotalOrders</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doanh thu -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-success">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-success">Doanh thu</h5>
+                    <p class="display-6 fw-bold">@Model.TotalRevenue.ToString("C")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

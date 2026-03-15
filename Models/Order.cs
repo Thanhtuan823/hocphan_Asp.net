@@ -23,6 +23,8 @@ namespace lab2.Models
         public DateTime OrderPlaced { get; set; }
         public bool Shipped { get; set; }
 
+        public string Status { get; set; } = "Pending";
+
 
         // Navigation property
         public decimal TotalAmount { get; set; }
