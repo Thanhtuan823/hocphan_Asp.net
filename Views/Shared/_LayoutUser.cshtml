@@ -20,12 +20,8 @@
             <a asp-controller="Cart" asp-action="Index"
                class="btn btn-warning fw-bold shadow-sm me-3 position-relative">
                 <i class="bi bi-cart3 me-1"></i> Giỏ hàng
-                <span id="cart-count"
-                      class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                    0
-                </span>
+                @await Component.InvokeAsync("CartCount")
             </a>
-
             <!-- Profile dropdown -->
             <div class="dropdown">
                 <button class="btn btn-outline-success fw-bold dropdown-toggle shadow-sm" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">

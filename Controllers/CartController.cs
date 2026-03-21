@@ -1,24 +1,26 @@
 ﻿using lab2.Data;
 using lab2.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using System.Linq;
+using System.Text.Json;
+using System.Collections.Generic;
 
 namespace lab2.Controllers
 {
     public class CartController : Controller
     {
         private readonly AppDbContext context;
-        private readonly SessionCart cart;
 
-        public CartController(AppDbContext _context, SessionCart _cart)
+        public CartController(AppDbContext _context)
         {
             context = _context;
-            cart = _cart;
         }
 
         // Hiển thị giỏ hàng
         public IActionResult Index()
         {
+            var cart = SessionCart.GetCart(HttpContext.RequestServices);
             return View(cart.Items);
         }
 
@@ -26,57 +28,64 @@ namespace lab2.Controllers
         [HttpPost]
         public IActionResult AddToCart(int productId, int quantity = 1)
         {
-            var product = context.Products.FirstOrDefault(p => p.ProductId == productId);
-            if (product == null) return NotFound();
+            var cart = SessionCart.GetCart(HttpContext.RequestServices);
 
-            var existingItem = cart.Items.FirstOrDefault(c => c.ProductId == productId);
-            if (existingItem != null)
+            var product = context.Products.FirstOrDefault(p => p.ProductId == productId);
+            if (product != null)
             {
-                existingItem.Quantity += quantity;
-            }
-            else
-            {
-                cart.Items.Add(new CartItem
+                var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == productId);
+                if (existingItem == null)
                 {
-                    ProductId = product.ProductId,
-                    ProductName = product.ProductName,
-                    ImageUrl = product.ImageUrl,
-                    Price = product.Price,
-                    Quantity = quantity
-                });
+                    cart.Items.Add(new CartItem
+                    {
+                        ProductId = product.ProductId,
+                        ProductName = product.ProductName,
+                        ImageUrl = product.ImageUrl,
+                        Price = product.Price,
+                        Quantity = quantity
+                    });
+                }
+                else
+                {
+                    existingItem.Quantity += quantity;
+                }
             }
 
             cart.Save(HttpContext.RequestServices);
-            return Json(new { success = true, count = cart.Items.Sum(i => i.Quantity) });
 
-
+            return Json(new { success = true, count = cart.TotalQuantity });
         }
 
         // Xóa sản phẩm khỏi giỏ
+        [HttpPost]
         public IActionResult RemoveFromCart(int productId)
         {
+            var cart = SessionCart.GetCart(HttpContext.RequestServices);
+
             var item = cart.Items.FirstOrDefault(c => c.ProductId == productId);
             if (item != null)
             {
                 cart.Items.Remove(item);
                 cart.Save(HttpContext.RequestServices);
             }
-            return Json(new { success = true, count = cart.Items.Sum(i => i.Quantity) });
 
-
+            return Json(new { success = true, count = cart.TotalQuantity, totalPrice = cart.TotalPrice });
         }
 
         // Cập nhật số lượng
         [HttpPost]
         public IActionResult UpdateQuantity([FromBody] CartItemUpdate update)
         {
+            var cart = SessionCart.GetCart(HttpContext.RequestServices);
+
             var item = cart.Items.FirstOrDefault(c => c.ProductId == update.ProductId);
             if (item != null)
             {
                 item.Quantity = update.Quantity;
                 cart.Save(HttpContext.RequestServices);
             }
-            return Ok();
+
+            return Json(new { success = true, count = cart.TotalQuantity });
         }
     }
 
