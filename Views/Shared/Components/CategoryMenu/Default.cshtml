@@ -1,14 +1,26 @@
 ﻿@model IEnumerable<lab2.Models.Categories>
 
-<ul class="list-group">
-    @foreach (var category in Model)
-    {
-        <li class="list-group-item">
-            <a asp-controller="Product"
-               asp-action="ProductByCategory"
-               asp-route-categoryId="@category.CategoryId">
-                @category.CategoryName
-            </a>
-        </li>
-    }
-</ul>
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-success text-white fw-bold">
+        🌿 Danh mục sản phẩm
+    </div>
+
+    <ul class="list-group list-group-flush">
+
+        @foreach (var category in Model)
+        {
+            <li class="list-group-item p-0">
+                <a asp-controller="Product"
+                   asp-action="ProductByCategory"
+                   asp-route-categoryId="@category.CategoryId"
+                   class="d-block px-3 py-2 text-decoration-none text-dark category-link">
+
+                    <i class="bi bi-leaf me-2 text-success"></i>
+                    @category.CategoryName
+
+                </a>
+            </li>
+        }
+
+    </ul>
+</div>

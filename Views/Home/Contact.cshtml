@@ -1,0 +1,55 @@
+﻿@{
+    ViewData["Title"] = "Liên hệ";
+}
+
+<div class="container my-5">
+    <h2 class="text-center text-success mb-4">📞 Liên hệ với chúng tôi</h2>
+
+    <div class="row">
+
+        <!-- FORM -->
+        <div class="col-md-7">
+            <div class="card shadow-sm p-4 border-0">
+                <h5 class="mb-3 text-success">Gửi tin nhắn</h5>
+
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Họ và tên</label>
+                        <input type="text" class="form-control" placeholder="Nhập tên của bạn" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" placeholder="example@gmail.com" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nội dung</label>
+                        <textarea class="form-control" rows="4" placeholder="Nhập nội dung..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="bi bi-send"></i> Gửi liên hệ
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- INFO -->
+        <div class="col-md-5">
+            <div class="card shadow-sm p-4 border-0 bg-light">
+                <h5 class="text-success mb-3">Thông tin liên hệ</h5>
+
+                <p><i class="bi bi-geo-alt text-success"></i> Địa chỉ: Việt Nam</p>
+                <p><i class="bi bi-envelope text-success"></i> Email: support@lifetrees.com</p>
+                <p><i class="bi bi-telephone text-success"></i> Hotline: 0123 456 789</p>
+
+                <hr />
+
+                <h6 class="text-success">Giờ làm việc</h6>
+                <p>Thứ 2 - Chủ nhật: 8:00 - 21:00</p>
+            </div>
+        </div>
+
+    </div>
+</div>
