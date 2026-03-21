@@ -63,3 +63,54 @@
     background-color: #42a5f5;
     color: #fff;
 }
+/* Custom Admin Dashboard Styles */
+.admin-body-bg {
+    background-color: #f8f9fa;
+}
+
+.stat-card {
+    border: none;
+    border-radius: 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: #fff;
+    padding: 1rem;
+}
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+
+.icon-box {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+/* Bảng màu nhẹ nhàng cho Icon Box */
+.bg-soft-success {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+.bg-soft-primary {
+    background-color: #cfe2ff;
+    color: #084298;
+}
+
+.bg-soft-warning {
+    background-color: #fff3cd;
+    color: #664d03;
+}
+
+.chart-container {
+    background: #fff;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}

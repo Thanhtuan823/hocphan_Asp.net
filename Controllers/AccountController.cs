@@ -67,7 +67,16 @@ namespace Shopping.Controllers
                     model.Email, model.Password, isPersistent: false, lockoutOnFailure: false);
 
                 if (result.Succeeded)
-                    return RedirectToAction("Index", "Product");
+                {
+                    var user = await userManager.FindByEmailAsync(model.Email);
+                    var roles = await userManager.GetRolesAsync(user);
+
+                    if (roles.Contains("Admin"))
+                        return RedirectToAction("Dashboard", "Admin", new { area = "Management" });
+
+                    if (roles.Contains("User"))
+                        return RedirectToAction("Index", "Product"); // Layout user
+                }
 
                 ModelState.AddModelError("", "Sai thông tin đăng nhập");
             }

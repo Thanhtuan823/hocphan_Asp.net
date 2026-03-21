@@ -16,6 +16,7 @@ namespace lab2.Controllers.Management
             _userManager = userManager;
         }
 
+
         public IActionResult Dashboard()
         {
             var model = new AdminDashboard
