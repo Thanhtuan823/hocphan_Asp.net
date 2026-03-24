@@ -1,10 +1,12 @@
 ﻿using lab2.Data;
 using lab2.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace lab2.Controllers.Management
 {
+    [Authorize]
     public class OrderManagementController : Controller
     {
         private readonly AppDbContext _context;

@@ -1,10 +1,21 @@
 ﻿@{
-    if (User.IsInRole("Admin"))
+    // 1. Kiểm tra xem người dùng đã đăng nhập chưa
+    if (User.Identity != null && User.Identity.IsAuthenticated)
     {
-        Layout = "_LayoutAdmin";
+        // 2. Nếu đã đăng nhập, kiểm tra quyền Admin
+        if (User.IsInRole("Admin"))
+        {
+            Layout = "_LayoutAdmin";
+        }
+        else
+        {
+            // Đã đăng nhập nhưng là khách hàng bình thường
+            Layout = "_LayoutUser";
+        }
     }
     else
     {
-        Layout = "_LayoutUser";
+        // 3. Chưa đăng nhập: Sử dụng Layout mặc định cho khách (User)
+        Layout = "_Layout";
     }
 }

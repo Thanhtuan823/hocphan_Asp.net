@@ -1,42 +1,6 @@
 ﻿@model lab2.Models.Product
 
-<style>
-    /* Định dạng hộp chat */
-    .chat-box {
-        max-width: 800px;
-        margin: 50px auto;
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 15px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        background-color: #f9f9f9;
-        font-family: Arial, sans-serif;
-    }
 
-    .chat-box h2 {
-        text-align: center;
-        color: #28a745;
-        margin-bottom: 20px;
-    }
-
-    .form-group {
-        margin-bottom: 15px;
-    }
-
-    .form-control {
-        border-radius: 10px;
-        border: 1px solid #ddd;
-        padding: 10px;
-    }
-
-    .btn-success {
-        width: 100%;
-        border-radius: 10px;
-        padding: 10px;
-        font-size: 16px;
-    }
-
-</style>
 <div class="chat-box">
     <h2>Thêm sản phẩm mới</h2>
  @using (Html.BeginForm("Create", "Product", FormMethod.Post))

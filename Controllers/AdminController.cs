@@ -1,10 +1,12 @@
 ﻿using lab2.Data;
 using lab2.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace lab2.Controllers.Management
 {
+    [Authorize]
     public class AdminController : Controller
     {
         private readonly AppDbContext _context;

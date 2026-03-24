@@ -1,0 +1,173 @@
+﻿@model lab2.Models.Product
+
+@{
+    ViewData["Title"] = "Chỉnh sửa sản phẩm";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@section Styles {
+    <style>
+        .edit-card {
+            border-radius: 15px;
+            border: none;
+        }
+
+        .custom-focus:focus {
+            border-color: #198754 !important;
+            box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.1) !important;
+        }
+
+        #imgPreviewBox {
+            width: 100%;
+            height: 250px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8fafc;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+            #imgPreviewBox img {
+                max-height: 100%;
+                max-width: 100%;
+                object-fit: contain;
+            }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="mb-4">
+                <a asp-action="Index" class="text-decoration-none text-success fw-bold">
+                    <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách
+                </a>
+            </div>
+
+            <div class="card edit-card shadow-sm">
+                <div class="card-header bg-white py-3 border-0">
+                    <h3 class="fw-bold mb-0 text-dark">Chỉnh sửa sản phẩm</h3>
+                    <p class="text-muted small">Cập nhật thông tin chi tiết cho mã sản phẩm: #@Model.ProductId</p>
+                </div>
+
+                <div class="card-body p-4">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden" asp-for="ProductId" />
+
+                        <div class="row">
+                            <div class="col-md-7">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-muted">TÊN SẢN PHẨM</label>
+                                    <input asp-for="ProductName" class="form-control py-2 rounded-3 custom-focus" placeholder="Nhập tên cây..." required />
+                                    <span asp-validation-for="ProductName" class="text-danger small"></span>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label small fw-bold text-muted">DANH MỤC</label>
+                                        <select asp-for="CategoryId" class="form-select py-2 rounded-3 custom-focus" asp-items="ViewBag.CategoryId" required>
+                                            <option value="">-- Chọn danh mục --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label small fw-bold text-muted">SỐ LƯỢNG KHO</label>
+                                        <input asp-for="Quantity" type="number" class="form-control py-2 rounded-3 custom-focus" required />
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-muted">GIÁ BÁN (VNĐ)</label>
+                                    <div class="input-group">
+                                        <input asp-for="Price" type="number" class="form-control py-2 rounded-start-3 custom-focus" required />
+                                        <span class="input-group-text bg-light rounded-end-3">VNĐ</span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-muted">CẬP NHẬT QUA URL ẢNH</label>
+                                    <input asp-for="ImageUrl" id="imgUrlInput" class="form-control py-2 rounded-3 custom-focus"
+                                           placeholder="https://..." oninput="handleUrlPreview(this.value)" />
+                                </div>
+                            </div>
+
+                            <div class="col-md-5">
+                                <label class="form-label small fw-bold text-muted d-block text-center">HÌNH ẢNH HIỆN TẠI / XEM TRƯỚC</label>
+                                <div id="imgPreviewBox">
+                                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                                    {
+                                        <img src="@Model.ImageUrl" id="mainPreview" onerror="this.src='/images/default.png'" />
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted text-center" id="emptyMsg">
+                                            <i class="bi bi-image fs-1 d-block"></i>
+                                            <span>Chưa có ảnh</span>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="col-12 mt-3">
+                                <label class="form-label small fw-bold text-muted">MÔ TẢ SẢN PHẨM</label>
+                                <textarea asp-for="Description" class="form-control rounded-3 custom-focus" rows="4"></textarea>
+                            </div>
+                        </div>
+
+                        <hr class="my-4 text-muted">
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a asp-action="Index" class="btn btn-light px-4 py-2 fw-bold rounded-3">HỦY BỎ</a>
+                            <button type="submit" class="btn btn-success px-5 py-2 fw-bold rounded-3 shadow-sm">
+                                <i class="bi bi-save me-2"></i> LƯU THAY ĐỔI
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        // Xử lý xem trước khi nhập URL
+        function handleUrlPreview(url) {
+            const previewBox = document.getElementById('imgPreviewBox');
+            if (url.trim() !== "") {
+                previewBox.innerHTML = `<img src="${url}" id="mainPreview" onerror="this.src='/images/default.png';">`;
+            }
+        }
+
+        // Xử lý xem trước khi chọn File cục bộ
+        function previewLocalImage(input) {
+            if (input.files && input.files[0]) {
+                // Khi chọn file thì xóa nội dung trong ô URL để tránh nhầm lẫn
+                document.getElementById('imgUrlInput').value = "";
+
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('imgPreviewBox').innerHTML = `<img src="${e.target.result}" id="mainPreview">`;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+}

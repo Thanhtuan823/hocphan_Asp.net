@@ -9,6 +9,15 @@ var builder = WebApplication.CreateBuilder(args);
 // Đăng ký HttpContextAccessor
 builder.Services.AddHttpContextAccessor();
 
+// Thêm vào trước dòng var app = builder.Build();
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[] { new System.Globalization.CultureInfo("vi-VN") };
+    options.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture("vi-VN");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+});
+
 // Đăng ký SessionCart (giỏ hàng)
 builder.Services.AddSession(options =>
 {
@@ -17,6 +26,20 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 builder.Services.AddScoped<SessionCart>(sp => SessionCart.GetCart(sp));
+
+//Cookie xóa người đăng nhập khi đóng trình duyệt
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    // Ép Cookie hết hạn sau một khoảng thời gian ngắn nếu không hoạt động
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+    // Nếu SlidingExpiration = true, mỗi lần bạn click chuột thời gian sẽ được làm mới
+    options.SlidingExpiration = true;
+
+    // Cookie này sẽ bị xóa khi đóng trình duyệt (nếu không chọn Remember Me)
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 // Đăng ký DbContext (SQL Server)
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -50,7 +73,7 @@ using (var scope = app.Services.CreateScope())
     var adminUser = await userManager.FindByEmailAsync("admin@lifeandtrees.com");
     if (adminUser == null)
     {
-        adminUser = new IdentityUser { UserName = "admin@lifeandtrees.com", Email = "admin@lifeandtrees.com" };
+        adminUser = new IdentityUser { UserName = "admin123", Email = "admin@lifeandtrees.com" };
         await userManager.CreateAsync(adminUser, "Admin@123");
         await userManager.AddToRoleAsync(adminUser, "Admin");
     }

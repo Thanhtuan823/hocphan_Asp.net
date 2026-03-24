@@ -1,0 +1,157 @@
+﻿@model List<lab2.Models.Categories>
+
+@{
+    ViewData["Title"] = "Quản lý danh mục";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container my-4 animate-fade">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-2">
+            <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Dashboard" class="text-decoration-none text-success">Dashboard</a></li>
+            <li class="breadcrumb-item active">Danh mục</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-0">Quản lý danh mục</h2>
+            <p class="text-muted small mb-0">Hiện có <span class="badge bg-success-subtle text-success">@Model.Count</span> phân loại trong hệ thống</p>
+        </div>
+        <button type="button" class="btn btn-success fw-bold rounded-3 px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#quickAddModal">
+            <i class="bi bi-plus-circle-fill me-2"></i> Thêm nhanh
+        </button>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-secondary small text-uppercase fw-bold">
+                        <tr>
+                            <th class="ps-4 py-3" style="width: 15%">Mã số</th>
+                            <th style="width: 65%">Tên danh mục</th>
+                            <th class="text-center" style="width: 20%">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <span class="text-muted">#@item.CategoryId</span>
+                                </td>
+                                <td>
+                                    <span class="fw-semibold text-dark fs-6">@item.CategoryName</span>
+                                </td>
+                                <td class="text-center px-4">
+                                    <div class="btn-group shadow-sm rounded-2 overflow-hidden">
+                                        <button type="button" class="btn btn-white btn-sm border-end" 
+                                                data-bs-toggle="modal" data-bs-target="#editModal-@item.CategoryId" title="Sửa">
+                                            <i class="bi bi-pencil-square text-primary"></i>
+                                        </button>
+                                        <a asp-action="Delete" asp-route-id="@item.CategoryId" class="btn btn-white btn-sm" title="Xóa"
+                                           onclick="return confirm('Xác nhận xóa danh mục này?')">
+                                            <i class="bi bi-trash3 text-danger"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <div class="modal fade" id="editModal-@item.CategoryId" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content border-0 shadow-lg rounded-4 text-start">
+                                        <div class="modal-header border-0 pb-0">
+                                            <h5 class="modal-title fw-bold text-primary">✏️ Cập nhật danh mục</h5>
+                                            <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body p-4">
+                                            <form asp-action="Edit" asp-route-id="@item.CategoryId" method="post">
+                                                <input type="hidden" name="CategoryId" value="@item.CategoryId" />
+                                                
+                                                <div class="mb-4">
+                                                    <label class="form-label small fw-bold text-muted">TÊN DANH MỤC</label>
+                                                    <input name="CategoryName" class="form-control border-2 bg-light shadow-none py-2 rounded-3 custom-focus-edit"
+                                                           value="@item.CategoryName" required />
+                                                </div>
+
+                                                <div class="row g-2">
+                                                    <div class="col-4">
+                                                        <button type="button" class="btn btn-light w-100 fw-semibold py-2 rounded-3" data-bs-dismiss="modal">Hủy</button>
+                                                    </div>
+                                                    <div class="col-8">
+                                                        <button type="submit" class="btn btn-primary w-100 fw-bold py-2 rounded-3 shadow-sm">
+                                                            <i class="bi bi-check2-circle me-1"></i> Cập nhật ngay
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="quickAddModal" tabindex="-1" aria-labelledby="quickAddModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-success" id="quickAddModalLabel">🌱 Phân loại mới</h5>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-start">
+                <form asp-action="Create" method="post">
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted">TÊN DANH MỤC</label>
+                        <input name="CategoryName" class="form-control border-2 bg-light shadow-none py-2 rounded-3 custom-focus"
+                               placeholder="VD: Sen đá, Cây treo tường..." required autofocus />
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-4">
+                            <button type="button" class="btn btn-light w-100 fw-semibold py-2 rounded-3" data-bs-dismiss="modal">Đóng</button>
+                        </div>
+                        <div class="col-8">
+                            <button type="submit" class="btn btn-success w-100 fw-bold py-2 rounded-3 shadow-sm">
+                                <i class="bi bi-save me-1"></i> Lưu vào hệ thống
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .animate-fade { animation: fadeIn 0.4s ease-out; }
+        @@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .modal-backdrop { background-color: #198754; opacity: 0.15 !important; }
+
+        .btn-white { background-color: #ffffff; border: 1px solid #edf2f7; transition: 0.2s; }
+        .btn-white:hover { background-color: #f8fafc; }
+
+        .custom-focus:focus { 
+            background-color: #ffffff !important; 
+            border-color: #198754 !important; 
+            box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.1) !important; 
+        }
+
+        /* Focus riêng cho Modal Sửa (Màu xanh dương) */
+        .custom-focus-edit:focus { 
+            background-color: #ffffff !important; 
+            border-color: #0d6efd !important; 
+            box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1) !important; 
+        }
+
+        .bg-success-subtle { background-color: #e8f5e9 !important; }
+    </style>
+}

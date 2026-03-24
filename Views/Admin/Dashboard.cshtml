@@ -4,40 +4,121 @@
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-5">
-        <div>
-            <h2 class="fw-bold text-dark mb-1">📊 Tổng quan hệ thống</h2>
-            <p class="text-muted">Cập nhật số liệu mới nhất về cửa hàng của bạn</p>
+<div class="container py-4">
+    <div class="mb-4">
+        <h2 class="fw-bold text-dark mb-1">📊 Hệ thống Quản trị</h2>
+        <p class="text-muted">Dữ liệu được cập nhật theo thời gian thực</p>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card stat-card shadow-sm h-100 p-2 border-start border-primary border-4">
+                <div class="card-body d-flex align-items-center">
+                    <div class="icon-box bg-primary bg-opacity-10 text-primary me-3">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted text-uppercase small fw-bold mb-1">Khách hàng</h6>
+                        <h3 class="fw-bold mb-0">@Model.TotalUsers.ToString("N0")</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card stat-card shadow-sm h-100 p-2 border-start border-warning border-4">
+                <div class="card-body d-flex align-items-center">
+                    <div class="icon-box bg-warning bg-opacity-10 text-warning me-3">
+                        <i class="bi bi-cart-check-fill"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted text-uppercase small fw-bold mb-1">Đơn hàng</h6>
+                        <h3 class="fw-bold mb-0">@Model.TotalOrders.ToString("N0")</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card stat-card shadow-sm h-100 p-2 border-start border-success border-4">
+                <div class="card-body d-flex align-items-center">
+                    <div class="icon-box bg-success bg-opacity-10 text-success me-3">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted text-uppercase small fw-bold mb-1">Doanh thu</h6>
+                        <h3 class="fw-bold mb-0 text-success">@Model.TotalRevenue.ToString("N0") <small class="fs-6">đ</small></h3>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="row g-4">
-        <div class="col-md-4">
-            <div class="card stat-card shadow-sm h-100 p-3">
-                <div class="card-body">
-                    <h6 class="text-muted text-uppercase small fw-bold">Người dùng</h6>
-                    <h3 class="fw-bold mb-0">@Model.TotalUsers.ToString("N0")</h3>
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-4 p-4">
+                <h5 class="fw-bold mb-4 text-dark">Xu hướng Doanh thu</h5>
+                <div class="chart-container">
+                    <canvas id="mainChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card stat-card shadow-sm h-100 p-3">
-                <div class="card-body">
-                    <h6 class="text-muted text-uppercase small fw-bold">Đơn hàng</h6>
-                    <h3 class="fw-bold mb-0">@Model.TotalOrders.ToString("N0")</h3>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card stat-card shadow-sm h-100 p-3">
-                <div class="card-body">
-                    <h6 class="text-muted text-uppercase small fw-bold">Doanh thu</h6>
-                    <h3 class="fw-bold mb-0 text-success">@Model.TotalRevenue.ToString("N0") <small class="fs-6">đ</small></h3>
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 rounded-4 p-4 h-100">
+                <h5 class="fw-bold mb-4 text-dark">Tỉ lệ Đơn hàng</h5>
+                <div class="chart-container">
+                    <canvas id="pieChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Biểu đồ cột/đường (Doanh thu)
+        const ctx = document.getElementById('mainChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line', // Bạn có thể đổi thành 'bar' nếu thích biểu đồ cột
+            data: {
+                labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
+                datasets: [{
+                    label: 'Doanh thu ngày',
+                    data: [1200000, 1900000, 3000000, 2500000, 2200000, 4500000, 3800000], // Dữ liệu mẫu
+                    borderColor: '#198754',
+                    backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                    fill: true,
+                    tension: 0.4 // Làm mượt đường kẻ
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        // Biểu đồ tròn (Cơ cấu)
+        const ctxPie = document.getElementById('pieChart').getContext('2d');
+        new Chart(ctxPie, {
+            type: 'doughnut',
+            data: {
+                labels: ['Hoàn thành', 'Đang xử lý', 'Đã hủy'],
+                datasets: [{
+                    data: [65, 25, 10], // Dữ liệu mẫu
+                    backgroundColor: ['#198754', '#ffc107', '#dc3545'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%' // Tạo lỗ hổng ở giữa cho đẹp
+            }
+        });
+    </script>
+}

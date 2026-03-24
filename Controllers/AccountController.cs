@@ -57,12 +57,16 @@ namespace Shopping.Controllers
         // Đăng nhập
         [HttpGet]
         public IActionResult Login() => View();
+        [HttpGet]
+        public IActionResult Register() => View();
 
         [HttpPost]
+        [ValidateAntiForgeryToken] // Luôn nên có để bảo mật
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (ModelState.IsValid)
             {
+                await signInManager.SignOutAsync();
                 var result = await signInManager.PasswordSignInAsync(
                     model.Email, model.Password, isPersistent: false, lockoutOnFailure: false);
 

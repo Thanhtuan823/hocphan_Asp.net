@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using lab2.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using lab2.Models;
 
 namespace lab2.Controllers.Management
 {
+    [Authorize]
     public class UserManagementController : Controller
     {
         private readonly UserManager<IdentityUser> _userManager;

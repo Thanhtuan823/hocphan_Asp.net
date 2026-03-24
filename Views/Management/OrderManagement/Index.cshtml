@@ -1,47 +1,87 @@
 ﻿@model IEnumerable<lab2.Models.Order>
 
-<div class="container mt-4">
-    <h2 class="text-success fw-bold mb-3">Quản lý đơn hàng</h2>
-    <table class="table table-bordered table-hover shadow-sm">
-        <thead class="table-success">
-            <tr>
-                <th>Mã đơn</th>
-                <th>Khách hàng</th>
-                <th>Địa chỉ</th>
-                <th>Ngày đặt</th>
-                <th>Tổng tiền</th>
-                <th>Trạng thái</th>
-                <th>Thao tác</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var order in Model)
-            {
-                <tr>
-                    <td>@order.OrderId</td>
-                    <td>@order.Name</td>
-                    <td>@order.Address1, @order.City</td>
-                    <td>@order.OrderPlaced.ToString("dd/MM/yyyy")</td>
-                    <td>@order.TotalAmount.ToString("C")</td>
-                    <td>@order.Status</td>
-                    <td>
-                        <!-- Xem chi tiết -->
-                        <a asp-action="Details" asp-route-id="@order.OrderId"
-                           class="btn btn-outline-primary btn-sm">Chi tiết</a>
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
 
-                        <!-- Cập nhật trạng thái -->
-                        <form asp-action="UpdateStatus" method="post" style="display:inline">
-                            <input type="hidden" name="id" value="@order.OrderId" />
-                            <select name="status" class="form-select form-select-sm d-inline w-auto me-2">
-                                <option value="Pending" selected="@("Pending" == order.Status)">Chờ xử lý</option>
-                                <option value="Shipping" selected="@("Shipping" == order.Status)">Đang giao</option>
-                                <option value="Completed" selected="@("Completed" == order.Status)">Hoàn tất</option>
-                            </select>
-                            <button type="submit" class="btn btn-outline-success btn-sm">Cập nhật</button>
-                        </form>
-                    </td>
+<div class="container mt-4 animate-fade">
+    <h2 class="text-success fw-bold mb-4">📦 Quản lý đơn hàng</h2>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light text-secondary small text-uppercase fw-bold">
+                <tr>
+                    <th class="ps-4 py-3">Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Địa chỉ</th>
+                    <th>Ngày đặt</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th class="text-center">Thao tác</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var order in Model)
+                {
+                    @* Thêm style cursor và sự kiện onclick vào tr *@
+                    <tr style="cursor: pointer;"
+                        onclick="window.location.href='@Url.Action("Details", new { id = order.OrderId })'">
+
+                        <td class="ps-4 fw-bold text-primary">#@order.OrderId</td>
+                        <td>@order.Name</td>
+                        <td class="small text-muted">@order.Address1, @order.City</td>
+                        <td>@order.OrderPlaced.ToString("dd/MM/yyyy")</td>
+                        <td class="fw-bold text-success">@order.TotalAmount.ToString("#,##0") đ</td>
+                        <td>
+                            @* Hiển thị Badge trạng thái cho đẹp *@
+                            @{
+                                var statusClass = order.Status == "Completed" ? "bg-success" : (order.Status == "Shipping" ? "bg-primary" : "bg-warning text-dark");
+                            }
+                            <span class="badge @statusClass rounded-pill">@order.Status</span>
+                        </td>
+                        <td class="text-center" onclick="event.stopPropagation();">
+                            @* Ngăn chặn việc click vào form cập nhật bị nhảy trang *@
+                            <form asp-action="UpdateStatus" method="post" class="d-flex align-items-center justify-content-center">
+                                <input type="hidden" name="id" value="@order.OrderId" />
+                                <select name="status" class="form-select form-select-sm w-auto me-2 shadow-none">
+                                    <option value="Pending" selected="@("Pending" == order.Status)">Chờ xử lý</option>
+                                    <option value="Shipping" selected="@("Shipping" == order.Status)">Đang giao</option>
+                                    <option value="Completed" selected="@("Completed" == order.Status)">Hoàn tất</option>
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-success shadow-sm">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
+
+@section Styles {
+    <style>
+        /* Hiệu ứng khi di chuột qua hàng */
+        .table-hover tbody tr:hover {
+            background-color: #f1f8f5 !important;
+            transition: 0.2s;
+        }
+
+        .animate-fade {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+}

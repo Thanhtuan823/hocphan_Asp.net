@@ -1,9 +1,11 @@
 ﻿using lab2.Data;
 using lab2.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace lab2.Controllers.Management
 {
+    [Authorize]
     public class CategoryManagementController : Controller
     {
         private readonly AppDbContext _context;
@@ -37,7 +39,7 @@ namespace lab2.Controllers.Management
         {
             var category = _context.Category.Find(id);
             if (category == null) return NotFound();
-            return View("~/Views/Management/CategoryManagement/Edit.cshtml", category);
+            return View("~/Views/Management/CategoryManagement/UpdateCategory.cshtml", category);
         }
 
         [HttpPost]
