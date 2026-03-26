@@ -1,0 +1,109 @@
+﻿@model lab2.Models.Order
+@{
+    ViewData["Title"] = "Thông tin giao hàng";
+    Layout = "~/Views/Shared/_LayoutUser.cshtml";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden animate-fade-in">
+                <div class="card-header bg-success text-white py-3 text-center border-0">
+                    <h4 class="mb-0 fw-bold"><i class="bi bi-geo-alt-fill me-2"></i>ĐỊA CHỈ GIAO HÀNG</h4>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <p class="text-muted small text-center mb-4">
+                        Thông tin này sẽ được dùng để làm mặc định khi bạn thanh toán đơn hàng.
+                    </p>
+
+                    <form asp-action="Address" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label fw-bold small">HỌ VÀ TÊN</label>
+                            <input asp-for="Name" class="form-control rounded-pill border-2 focus-green" placeholder="VD: Nguyễn Văn A" required />
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PhoneNumber" class="form-label fw-bold small">SỐ ĐIỆN THOẠI</label>
+                            <input asp-for="PhoneNumber" class="form-control rounded-pill border-2 focus-green" placeholder="090..." required />
+                            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Address1" class="form-label fw-bold small">ĐỊA CHỈ (SỐ NHÀ, TÊN ĐƯỜNG)</label>
+                            <input asp-for="Address1" class="form-control rounded-pill border-2 focus-green" placeholder="123 Lê Lợi..." required />
+                            <span asp-validation-for="Address1" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-7 mb-3">
+                                <label asp-for="City" class="form-label fw-bold small">THÀNH PHỐ</label>
+                                <input asp-for="City" class="form-control rounded-pill border-2 focus-green" placeholder="TP. HCM" required />
+                            </div>
+                            <div class="col-5 mb-3">
+                                <label asp-for="Zip" class="form-label fw-bold small">MÃ ZIP</label>
+                                <input asp-for="Zip" class="form-control rounded-pill border-2 focus-green" placeholder="70000" />
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Address2" class="form-label fw-bold small">GHI CHÚ (TÒA NHÀ, PHÒNG...)</label>
+                            <input asp-for="Address2" class="form-control rounded-pill border-2 focus-green" placeholder="Không bắt buộc" />
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100 py-3 rounded-pill fw-bold shadow-sm transition-hover">
+                            LƯU LẠI
+                        </button>
+
+                        <div class="text-center mt-3">
+                            <a asp-controller="Cart" asp-action="Index" class="text-decoration-none text-muted small">
+                                <i class="bi bi-chevron-left"></i> Quay lại giỏ hàng
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        body {
+            background-color: #f4f7f6;
+        }
+
+        .focus-green:focus {
+            border-color: #198754 !important;
+            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.1) !important;
+        }
+
+        .transition-hover {
+            transition: all 0.3s ease;
+        }
+
+            .transition-hover:hover {
+                transform: translateY(-2px);
+                filter: brightness(1.1);
+                box-shadow: 0 5px 15px rgba(25, 135, 84, 0.3) !important;
+            }
+
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+}

@@ -5,122 +5,222 @@
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<div class="container my-4 animate-fade">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb mb-2">
-            <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Dashboard" class="text-decoration-none text-success">Dashboard</a></li>
-            <li class="breadcrumb-item active">Danh mục</li>
-        </ol>
-    </nav>
+@section Styles {
+    <style>
+        .animate-fade {
+            animation: fadeIn 0.4s ease-out;
+        }
 
-    <div class="d-flex justify-content-between align-items-end mb-4">
-        <div>
-            <h2 class="fw-bold text-dark mb-0">Quản lý danh mục</h2>
-            <p class="text-muted small mb-0">Hiện có <span class="badge bg-success-subtle text-success">@Model.Count</span> phân loại trong hệ thống</p>
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Đồng bộ style với Product */
+        .category-table-card {
+            border-radius: 15px;
+            border: none;
+            overflow: hidden;
+        }
+
+        .img-preview-table {
+            width: 52px;
+            height: 52px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #eee;
+        }
+
+        .custom-focus:focus {
+            background-color: #ffffff !important;
+            border-color: #198754 !important;
+            box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.1) !important;
+        }
+
+        #imgPreviewBox {
+            width: 100%;
+            height: 140px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8fafc;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        #imgPreviewBox img {
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+        }
+
+        .btn-white {
+            background-color: #ffffff;
+            border: 1px solid #edf2f7;
+            transition: 0.2s;
+        }
+
+        .btn-white:hover {
+            background-color: #f8fafc;
+        }
+    </style>
+}
+
+<div class="container py-4 animate-fade">
+    <div class="row align-items-center mb-4">
+        <div class="col-md-6">
+            <h2 class="fw-bold mb-0 text-dark">
+                <i class="bi bi-grid-1x2 text-success me-2"></i>Phân Loại Cây
+            </h2>
+            <p class="text-muted small mb-0">Hệ thống có <span class="badge bg-success-subtle text-success border">@Model.Count</span> danh mục</p>
         </div>
-        <button type="button" class="btn btn-success fw-bold rounded-3 px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#quickAddModal">
-            <i class="bi bi-plus-circle-fill me-2"></i> Thêm nhanh
-        </button>
+        <div class="col-md-6 text-md-end">
+            <button type="button" class="btn btn-success fw-bold rounded-3 px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#quickAddCategoryModal">
+                <i class="bi bi-plus-lg me-1"></i> Thêm danh mục mới
+            </button>
+        </div>
     </div>
 
-    <div class="card border-0 shadow-sm rounded-4">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light text-secondary small text-uppercase fw-bold">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close shadow-none" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card category-table-card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-secondary small text-uppercase">
+                    <tr>
+                        <th class="ps-4 py-3"> Tên Danh mục</th>
+                        <th>Mô tả chi tiết</th>
+                        <th class="text-center">Số sản phẩm </th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
                         <tr>
-                            <th class="ps-4 py-3" style="width: 15%">Mã số</th>
-                            <th style="width: 65%">Tên danh mục</th>
-                            <th class="text-center" style="width: 20%">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model)
-                        {
-                            <tr>
-                                <td class="ps-4">
-                                    <span class="text-muted">#@item.CategoryId</span>
-                                </td>
-                                <td>
-                                    <span class="fw-semibold text-dark fs-6">@item.CategoryName</span>
-                                </td>
-                                <td class="text-center px-4">
-                                    <div class="btn-group shadow-sm rounded-2 overflow-hidden">
-                                        <button type="button" class="btn btn-white btn-sm border-end" 
-                                                data-bs-toggle="modal" data-bs-target="#editModal-@item.CategoryId" title="Sửa">
-                                            <i class="bi bi-pencil-square text-primary"></i>
-                                        </button>
-                                        <a asp-action="Delete" asp-route-id="@item.CategoryId" class="btn btn-white btn-sm" title="Xóa"
-                                           onclick="return confirm('Xác nhận xóa danh mục này?')">
-                                            <i class="bi bi-trash3 text-danger"></i>
-                                        </a>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <img src="@item.CategoryImageUrl" class="img-preview-table me-3 shadow-sm" onerror="this.src='https://placehold.co/50x50/198754/white?text=Cat'">
+                                    <div>
+                                        <div class="fw-bold text-dark">@item.CategoryName</div>
+                                        <div class="text-muted" style="font-size: 0.7rem;">ID: #@item.CategoryId</div>
                                     </div>
-                                </td>
-                            </tr>
+                                </div>
+                            </td>
+                            <td>
+                                <p class="text-muted small mb-0 text-truncate" style="max-width: 300px;">
+                                    @(string.IsNullOrEmpty(item.Description) ? "Bộ sưu tập cây xanh đặc sắc." : item.Description)
+                                </p>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-info-subtle text-info border px-3">
+                                    @(item.Products?.Count ?? 0) sản phẩm
+                                </span>
+                            </td>
+                            <td class="text-center px-4">
+                                <div class="btn-group border rounded-2">
+                                    <button type="button" class="btn btn-white btn-sm px-3 border-end" 
+                                            data-bs-toggle="modal" data-bs-target="#editModal-@item.CategoryId">
+                                        <i class="bi bi-pencil text-primary"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-white btn-sm px-3" onclick="showDeleteModal(@item.CategoryId, '@item.CategoryName')">
+                                        <i class="bi bi-trash text-danger"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
 
-                            <div class="modal fade" id="editModal-@item.CategoryId" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content border-0 shadow-lg rounded-4 text-start">
-                                        <div class="modal-header border-0 pb-0">
-                                            <h5 class="modal-title fw-bold text-primary">✏️ Cập nhật danh mục</h5>
-                                            <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body p-4">
-                                            <form asp-action="Edit" asp-route-id="@item.CategoryId" method="post">
-                                                <input type="hidden" name="CategoryId" value="@item.CategoryId" />
-                                                
-                                                <div class="mb-4">
-                                                    <label class="form-label small fw-bold text-muted">TÊN DANH MỤC</label>
-                                                    <input name="CategoryName" class="form-control border-2 bg-light shadow-none py-2 rounded-3 custom-focus-edit"
-                                                           value="@item.CategoryName" required />
-                                                </div>
+                        <div class="modal fade" id="editModal-@item.CategoryId" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content border-0 shadow-lg rounded-4">
+                                    <div class="modal-header border-0 pb-0">
+                                        <h5 class="modal-title fw-bold text-primary"><i class="bi bi-pencil-square me-2"></i>Cập nhật danh mục</h5>
+                                        <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body p-4">
+                                        <form asp-action="Edit" asp-route-id="@item.CategoryId" method="post">
+                                            <input type="hidden" name="CategoryId" value="@item.CategoryId" />
+                                            
+                                            <div class="mb-3">
+                                                <label class="form-label small fw-bold text-muted">TÊN DANH MỤC</label>
+                                                <input name="CategoryName" class="form-control border-2 bg-light shadow-none py-2 rounded-3 custom-focus" value="@item.CategoryName" required />
+                                            </div>
 
-                                                <div class="row g-2">
-                                                    <div class="col-4">
-                                                        <button type="button" class="btn btn-light w-100 fw-semibold py-2 rounded-3" data-bs-dismiss="modal">Hủy</button>
-                                                    </div>
-                                                    <div class="col-8">
-                                                        <button type="submit" class="btn btn-primary w-100 fw-bold py-2 rounded-3 shadow-sm">
-                                                            <i class="bi bi-check2-circle me-1"></i> Cập nhật ngay
-                                                        </button>
-                                                    </div>
+                                            <div class="mb-3">
+                                                <label class="form-label small fw-bold text-muted">HÌNH ẢNH (URL)</label>
+                                                <input name="CategoryImageUrl" class="form-control border-2 bg-light shadow-none py-2 rounded-3 custom-focus" value="@item.CategoryImageUrl" />
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <label class="form-label small fw-bold text-muted">MÔ TẢ</label>
+                                                <textarea name="Description" class="form-control border-2 bg-light shadow-none py-2 rounded-3 custom-focus" rows="3">@item.Description</textarea>
+                                            </div>
+
+                                            <div class="row g-2">
+                                                <div class="col-4">
+                                                    <button type="button" class="btn btn-outline-secondary w-100 fw-bold py-2 rounded-3" data-bs-dismiss="modal">HỦY</button>
                                                 </div>
-                                            </form>
-                                        </div>
+                                                <div class="col-8">
+                                                    <button type="submit" class="btn btn-primary w-100 fw-bold py-2 rounded-3 shadow-sm">LƯU THAY ĐỔI</button>
+                                                </div>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
-                        }
-                    </tbody>
-                </table>
-            </div>
+                        </div>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="quickAddModal" tabindex="-1" aria-labelledby="quickAddModalLabel" aria-hidden="true">
+<div class="modal fade" id="quickAddCategoryModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg rounded-4">
             <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold text-success" id="quickAddModalLabel">🌱 Phân loại mới</h5>
-                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title fw-bold text-success"><i class="bi bi-plus-circle-dotted me-2"></i>Phân loại mới</h5>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-4 text-start">
+            <div class="modal-body p-4">
                 <form asp-action="Create" method="post">
-                    <div class="mb-4">
+                    <div class="mb-3">
                         <label class="form-label small fw-bold text-muted">TÊN DANH MỤC</label>
-                        <input name="CategoryName" class="form-control border-2 bg-light shadow-none py-2 rounded-3 custom-focus"
-                               placeholder="VD: Sen đá, Cây treo tường..." required autofocus />
+                        <input name="CategoryName" class="form-control border-2 bg-light shadow-none py-2 rounded-3 custom-focus" placeholder="VD: Cây để bàn, Sen đá..." required />
+                    </div>
+
+                    <div class="row mb-3 align-items-end">
+                        <div class="col-md-8">
+                            <label class="form-label small fw-bold text-muted">LINK ẢNH ĐẠI DIỆN</label>
+                            <input id="catImgUrl" name="CategoryImageUrl" class="form-control border-2 bg-light shadow-none py-2 rounded-3 custom-focus" placeholder="https://..." oninput="previewCat(this.value)" />
+                        </div>
+                        <div class="col-md-4">
+                            <div id="imgPreviewBox">
+                                <i class="bi bi-image text-muted fs-3"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted">MÔ TẢ NGẮN</label>
+                        <textarea name="Description" class="form-control border-2 bg-light shadow-none py-2 rounded-3 custom-focus" rows="3" placeholder="Giới thiệu về danh mục này..."></textarea>
                     </div>
 
                     <div class="row g-2">
                         <div class="col-4">
-                            <button type="button" class="btn btn-light w-100 fw-semibold py-2 rounded-3" data-bs-dismiss="modal">Đóng</button>
+                            <button type="button" class="btn btn-outline-secondary w-100 fw-bold py-2 rounded-3" data-bs-dismiss="modal">ĐÓNG</button>
                         </div>
                         <div class="col-8">
-                            <button type="submit" class="btn btn-success w-100 fw-bold py-2 rounded-3 shadow-sm">
-                                <i class="bi bi-save me-1"></i> Lưu vào hệ thống
-                            </button>
+                            <button type="submit" class="btn btn-success w-100 fw-bold py-2 rounded-3 shadow-sm">TẠO NGAY</button>
                         </div>
                     </div>
                 </form>
@@ -129,29 +229,40 @@
     </div>
 </div>
 
-@section Styles {
-    <style>
-        .animate-fade { animation: fadeIn 0.4s ease-out; }
-        @@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .modal-backdrop { background-color: #198754; opacity: 0.15 !important; }
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="p-4 text-center">
+                <div class="mb-3 text-danger"><i class="bi bi-exclamation-triangle" style="font-size: 3.5rem;"></i></div>
+                <h4 class="fw-bold">Xác nhận xóa?</h4>
+                <p class="text-muted mb-4 small">Mọi dữ liệu về danh mục <strong id="delName" class="text-dark"></strong> sẽ biến mất. Hãy cẩn thận!</p>
+                <div class="d-flex justify-content-center gap-2">
+                    <button type="button" class="btn btn-light px-4 rounded-3 fw-bold" data-bs-dismiss="modal">GIỮ LẠI</button>
+                    <form asp-action="Delete" method="post">
+                        <input type="hidden" name="id" id="delId" />
+                        <button type="submit" class="btn btn-danger px-4 rounded-3 fw-bold shadow-sm">XÓA VĨNH VIỄN</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-        .btn-white { background-color: #ffffff; border: 1px solid #edf2f7; transition: 0.2s; }
-        .btn-white:hover { background-color: #f8fafc; }
-
-        .custom-focus:focus { 
-            background-color: #ffffff !important; 
-            border-color: #198754 !important; 
-            box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.1) !important; 
+@section Scripts {
+    <script>
+        function showDeleteModal(id, name) {
+            document.getElementById('delId').value = id;
+            document.getElementById('delName').innerText = name;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
         }
 
-        /* Focus riêng cho Modal Sửa (Màu xanh dương) */
-        .custom-focus-edit:focus { 
-            background-color: #ffffff !important; 
-            border-color: #0d6efd !important; 
-            box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1) !important; 
+        function previewCat(url) {
+            const box = document.getElementById('imgPreviewBox');
+            if (url.trim() !== "") {
+                box.innerHTML = `<img src="${url}" onerror="this.onerror=null; this.parentNode.innerHTML='<i class=\'bi bi-file-earmark-x text-danger\'></i>';">`;
+            } else {
+                box.innerHTML = `<i class="bi bi-image text-muted fs-3"></i>`;
+            }
         }
-
-        .bg-success-subtle { background-color: #e8f5e9 !important; }
-    </style>
+    </script>
 }

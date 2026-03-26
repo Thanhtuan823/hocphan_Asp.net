@@ -1,26 +1,91 @@
 ﻿@model IEnumerable<lab2.Models.Categories>
 
-<div class="card shadow-sm border-0">
-    <div class="card-header bg-success text-white fw-bold">
-        🌿 Danh mục sản phẩm
-    </div>
+<div class="card shadow-sm border-0 rounded-4 overflow-hidden category-sidebar-card" style="max-width: 260px; background: transparent;">
+    <a asp-controller="Product" asp-action="Index" class="text-decoration-none">
+        <div class="card-header bg-success text-white fw-bold py-2 d-flex align-items-center" style="font-size: 0.85rem; cursor: pointer;">
+            <i class="bi bi-grid-fill me-2"></i>
+            <span>DANH MỤC CÂY</span>
+        </div>
+    </a>
 
-    <ul class="list-group list-group-flush">
-
+    <ul class="list-group list-group-flush custom-category-list bg-transparent">
         @foreach (var category in Model)
         {
-            <li class="list-group-item p-0">
+            <li class="list-group-item p-0 border-0 bg-transparent">
                 <a asp-controller="Product"
                    asp-action="ProductByCategory"
                    asp-route-categoryId="@category.CategoryId"
-                   class="d-block px-3 py-2 text-decoration-none text-dark category-link">
+                   class="d-flex align-items-center justify-content-between px-3 py-2 text-decoration-none category-item-link text-white">
 
-                    <i class="bi bi-leaf me-2 text-success"></i>
-                    @category.CategoryName
+                    <div class="d-flex align-items-center">
+                
+                        <span class="category-name">@category.CategoryName</span>
+                    </div>
 
+                    <i class="bi bi-chevron-right arrow-icon"></i>
                 </a>
             </li>
         }
-
     </ul>
 </div>
+
+<style>
+    /* Chỉnh chữ màu trắng để nổi trên nền xanh */
+    .category-sidebar-card {
+        font-size: 0.85rem;
+    }
+
+    .category-item-link {
+        transition: all 0.2s ease;
+        /* Bỏ background trắng cũ */
+        background-color: transparent;
+        position: relative;
+        color: rgba(255, 255, 255, 0.9) !important; /* Trắng nhẹ */
+    }
+
+    /* Mũi tên trắng mờ */
+    .arrow-icon {
+        font-size: 0.7rem;
+        color: rgba(255, 255, 255, 0.5);
+        transition: all 0.2s ease;
+    }
+
+    /* Hover: Nền sáng lên một chút */
+    .category-item-link:hover {
+        background-color: rgba(255, 255, 255, 0.15) !important;
+        color: #fff !important;
+    }
+
+        .category-item-link:hover .icon-circle {
+            background-color: #fff;
+            color: #198754; /* Quay lại màu xanh lá khi icon trắng hoàn toàn */
+            transform: rotate(15deg);
+        }
+
+        .category-item-link:hover .category-name {
+            transform: translateX(3px);
+            font-weight: 500;
+        }
+
+        .category-item-link:hover .arrow-icon {
+            transform: translateX(2px);
+            color: #fff !important;
+        }
+
+    /* Thanh chỉ thị màu trắng để nổi bật */
+    .category-item-link::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 3px;
+        background-color: #fff;
+        transform: scaleY(0);
+        transition: transform 0.2s ease;
+    }
+
+    .category-item-link:hover::before {
+        transform: scaleY(1);
+    }
+</style>

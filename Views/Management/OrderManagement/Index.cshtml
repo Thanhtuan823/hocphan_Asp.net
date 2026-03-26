@@ -2,10 +2,27 @@
 
 @{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Quản lý đơn hàng";
 }
 
 <div class="container mt-4 animate-fade">
-    <h2 class="text-success fw-bold mb-4">📦 Quản lý đơn hàng</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-success fw-bold m-0">📦 Quản lý đơn hàng</h2>
+            <p class="text-muted small mb-0">Hệ thống xử lý và phê duyệt đơn hàng</p>
+        </div>
+        <span class="badge bg-white text-dark border shadow-sm px-3 py-2">
+            <i class="bi bi-list-ul me-1"></i> Tổng cộng: @Model.Count() đơn hàng
+        </span>
+    </div>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success border-0 shadow-sm alert-dismissible fade show animate__animated animate__fadeIn">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Message"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
 
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
         <table class="table table-hover align-middle mb-0">
@@ -13,45 +30,83 @@
                 <tr>
                     <th class="ps-4 py-3">Mã đơn</th>
                     <th>Khách hàng</th>
-                    <th>Địa chỉ</th>
                     <th>Ngày đặt</th>
                     <th>Tổng tiền</th>
                     <th>Trạng thái</th>
-                    <th class="text-center">Thao tác</th>
+                    <th class="text-center">Thao tác xử lý</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var order in Model)
                 {
-                    @* Thêm style cursor và sự kiện onclick vào tr *@
-                    <tr style="cursor: pointer;"
-                        onclick="window.location.href='@Url.Action("Details", new { id = order.OrderId })'">
-
+                    <tr style="cursor: pointer;" onclick="window.location.href='@Url.Action("Details", "Order", new { id = order.OrderId })'">
                         <td class="ps-4 fw-bold text-primary">#@order.OrderId</td>
-                        <td>@order.Name</td>
-                        <td class="small text-muted">@order.Address1, @order.City</td>
-                        <td>@order.OrderPlaced.ToString("dd/MM/yyyy")</td>
-                        <td class="fw-bold text-success">@order.TotalAmount.ToString("#,##0") đ</td>
                         <td>
-                            @* Hiển thị Badge trạng thái cho đẹp *@
-                            @{
-                                var statusClass = order.Status == "Completed" ? "bg-success" : (order.Status == "Shipping" ? "bg-primary" : "bg-warning text-dark");
+                            <div class="fw-bold text-dark">@order.Name</div>
+                            <div class="small text-muted text-truncate" style="max-width: 200px;">
+                                <i class="bi bi-geo-alt small"></i> @order.Address1
+                            </div>
+                        </td>
+                        <td class="small">@order.OrderPlaced.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td class="fw-bold text-danger">@order.TotalAmount.ToString("#,##0") đ</td>
+                        <td>
+                            @switch (order.Status)
+                            {
+                                case OrderStatus.Pending:
+                                    <span class="badge bg-warning text-dark rounded-pill shadow-sm"><i class="bi bi-clock me-1"></i> Chờ xử lý</span>
+                                    break;
+                                case OrderStatus.CancelRequested:
+                                    <span class="badge bg-info text-white rounded-pill">
+                                        <i class="bi bi-exclamation-circle me-1"></i> Yêu cầu hủy
+                                    </span>
+                                    @if (!string.IsNullOrEmpty(order.CancelReason))
+                                    {
+                                        <div class="x-small text-danger mt-1 fw-bold" style="font-size: 0.7rem;">
+                                            Lý do: @order.CancelReason
+                                        </div>
+                                    }
+                                    break;
+                                case OrderStatus.Shipping:
+                                    <span class="badge bg-primary rounded-pill shadow-sm"><i class="bi bi-truck me-1"></i> Đang giao</span>
+                                    break;
+                                case OrderStatus.Success:
+                                    <span class="badge bg-success rounded-pill shadow-sm"><i class="bi bi-check-circle me-1"></i> Hoàn tất</span>
+                                    break;
+                                case OrderStatus.Cancelled:
+                                    <span class="badge bg-danger rounded-pill shadow-sm"><i class="bi bi-x-circle me-1"></i> Đã hủy</span>
+                                    break;
                             }
-                            <span class="badge @statusClass rounded-pill">@order.Status</span>
                         </td>
                         <td class="text-center" onclick="event.stopPropagation();">
-                            @* Ngăn chặn việc click vào form cập nhật bị nhảy trang *@
-                            <form asp-action="UpdateStatus" method="post" class="d-flex align-items-center justify-content-center">
-                                <input type="hidden" name="id" value="@order.OrderId" />
-                                <select name="status" class="form-select form-select-sm w-auto me-2 shadow-none">
-                                    <option value="Pending" selected="@("Pending" == order.Status)">Chờ xử lý</option>
-                                    <option value="Shipping" selected="@("Shipping" == order.Status)">Đang giao</option>
-                                    <option value="Completed" selected="@("Completed" == order.Status)">Hoàn tất</option>
-                                </select>
-                                <button type="submit" class="btn btn-sm btn-success shadow-sm">
-                                    <i class="bi bi-check-lg"></i>
-                                </button>
-                            </form>
+                            @if (order.Status == OrderStatus.CancelRequested)
+                            {
+                                @* Nút duyệt hủy đặc biệt cho Admin - Sẽ kích hoạt hoàn kho *@
+                                <form asp-controller="Order" asp-action="ConfirmCancel" method="post" onsubmit="return confirm('Xác nhận hủy đơn và cập nhật số lượng vào kho?')">
+                                    <input type="hidden" name="orderId" value="@order.OrderId" />
+                                    <button type="submit" class="btn btn-sm btn-danger rounded-pill px-3 fw-bold shadow-sm">
+                                        <i class="bi bi-check-lg"></i> Xác nhận hủy
+                                    </button>
+                                </form>
+                            }
+                            else if (order.Status != OrderStatus.Cancelled && order.Status != OrderStatus.Success)
+                            {
+                                @* Form cập nhật trạng thái thông thường *@
+                                <form asp-action="UpdateStatus" method="post" class="d-flex align-items-center justify-content-center gap-2">
+                                    <input type="hidden" name="orderId" value="@order.OrderId" />
+                                    <select name="status" class="form-select form-select-sm w-auto shadow-none border-success-subtle rounded-pill">
+                                        <option value="Pending" selected="@(order.Status == OrderStatus.Pending)">Chờ xử lý</option>
+                                        <option value="Shipping" selected="@(order.Status == OrderStatus.Shipping)">Đang giao</option>
+                                        <option value="Success" selected="@(order.Status == OrderStatus.Success)">Hoàn tất</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-success rounded-circle p-1 px-2 shadow-sm">
+                                        <i class="bi bi-floppy"></i>
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <span class="text-muted small italic">Đơn hàng đã hoàn tất</span>
+                            }
                         </td>
                     </tr>
                 }
@@ -61,10 +116,11 @@
 </div>
 
 @section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
-        /* Hiệu ứng khi di chuột qua hàng */
         .table-hover tbody tr:hover {
-            background-color: #f1f8f5 !important;
+            background-color: #f8fff9 !important;
             transition: 0.2s;
         }
 
@@ -82,6 +138,22 @@
                 opacity: 1;
                 transform: translateY(0);
             }
+        }
+
+        .badge {
+            font-weight: 600;
+            padding: 0.5em 1em;
+            letter-spacing: 0.3px;
+        }
+
+        .form-select-sm {
+            font-size: 0.85rem;
+            padding-top: 0.2rem;
+            padding-bottom: 0.2rem;
+        }
+
+        .x-small {
+            font-size: 0.75rem;
         }
     </style>
 }

@@ -1,51 +1,33 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace lab2.Models
 {
     public class Cart
     {
-        private List<CartItem> items = new List<CartItem>();
+        [Key]
+        public int CartId { get; set; }
 
-        public IEnumerable<CartItem> Items => items;
+        [Required]
+        public string UserId { get; set; } // Khóa để biết giỏ hàng này của ai
 
-        // Thêm sản phẩm vào giỏ
-        public void AddItem(Product product, int quantity)
-        {
-            var item = items.FirstOrDefault(i => i.ProductId == product.ProductId);
-            if (item == null)
-            {
-                items.Add(new CartItem
-                {
-                    ProductId = product.ProductId,
-                    ProductName = product.ProductName,   // lấy từ Product
-                    ImageUrl = product.ImageUrl,         // lấy từ Product
-                    Price = product.Price,               // lấy từ Product
-                    Quantity = quantity
-                });
-            }
-            else
-            {
-                item.Quantity += quantity;
-            }
-        }
+        // Dùng List để Entity Framework có thể theo dõi và lưu trữ
+        public List<CartItem> Items { get; set; } = new List<CartItem>();
 
-        // Xóa sản phẩm khỏi giỏ
-        public void RemoveItem(int productId)
-        {
-            items.RemoveAll(i => i.ProductId == productId);
-        }
+        // Các phương thức bổ trợ logic (vẫn giữ lại để dùng trong Controller)
 
-        // Tính tổng tiền giỏ hàng
         public decimal ComputeTotalValue()
         {
-            return items.Sum(i => i.Total);
+            // Lưu ý: Đảm bảo CartItem của bạn có thuộc tính Total (Price * Quantity)
+            return Items.Sum(i => i.Price * i.Quantity);
         }
 
-        // Xóa toàn bộ giỏ hàng
+        public int TotalQuantity => Items.Sum(i => i.Quantity);
+
         public void Clear()
         {
-            items.Clear();
+            Items.Clear();
         }
     }
 }

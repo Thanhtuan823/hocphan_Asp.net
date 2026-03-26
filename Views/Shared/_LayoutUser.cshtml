@@ -17,46 +17,119 @@
     <style>
         body {
             font-family: 'Quicksand', sans-serif;
+            background-color: #f8f9fa;
         }
 
-        .nav-link:hover {
-            color: #198754 !important;
-            transform: translateY(-2px);
-            transition: 0.3s;
+        /* Hiệu ứng Navbar */
+        .navbar {
+            transition: all 0.3s ease;
         }
+
+        .navbar-brand {
+            font-size: 1.6rem;
+            letter-spacing: -0.5px;
+        }
+
+        /* Hiệu ứng Hover cho các liên kết Menu */
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+            .nav-link::after {
+                content: '';
+                position: absolute;
+                width: 0;
+                height: 2px;
+                bottom: 5px;
+                left: 15%;
+                background-color: #ffc107; /* Màu vàng nhấn nhẹ */
+                transition: width 0.3s ease;
+            }
+
+            .nav-link:hover::after {
+                width: 70%;
+            }
+
+            .nav-link:hover {
+                color: #d4edda !important;
+                transform: translateY(-2px);
+            }
+
+        /* Nút bo tròn đồng bộ */
+        .rounded-pill-custom {
+            border-radius: 50px;
+            padding: 8px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-light:hover {
+            background-color: white;
+            color: #198754 !important;
+        }
+
+        /* Dropdown menu bo góc và bóng đổ */
+        .dropdown-menu {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 10px;
+        }
+
+        .dropdown-item {
+            border-radius: 8px;
+            padding: 8px 15px;
+            transition: background 0.2s;
+        }
+
+            .dropdown-item:hover {
+                background-color: #f0fdf4;
+                color: #198754;
+            }
     </style>
 </head>
 <body class="bg-light d-flex flex-column min-vh-100">
 
-    <nav class="navbar navbar-expand-lg navbar-light sticky-top shadow-sm bg-white">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success sticky-top shadow py-3">
         <div class="container">
-            <a class="navbar-brand fw-bold text-success fs-3" asp-controller="Home" asp-action="Index">
+            <a class="navbar-brand fw-bold fs-3" asp-controller="Home" asp-action="Index">
                 🌱 Life and Trees
             </a>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#userNavbar">
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#userNavbar">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="userNavbar">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-                    <li class="nav-item"><a class="nav-link text-dark fw-semibold" asp-controller="Home" asp-action="Index">Trang chủ</a></li>
-                    <li class="nav-item"><a class="nav-link text-dark fw-semibold" asp-controller="Category" asp-action="Index">Danh mục</a></li>
-                    <li class="nav-item"><a class="nav-link text-dark fw-semibold" asp-controller="Home" asp-action="Contact">Liên hệ</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white fw-semibold px-3" asp-controller="Category" asp-action="Index">Danh mục</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white fw-semibold px-3" asp-controller="Product" asp-action="Index">Sản phẩm</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white fw-semibold px-3" asp-controller="Home" asp-action="About">Chúng tôi</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white fw-semibold px-3" asp-controller="Home" asp-action="Contact">Liên hệ</a>
+                    </li>
                 </ul>
 
                 <div class="d-flex align-items-center gap-3">
-                    <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-success rounded-pill px-3 position-relative shadow-sm">
+                    <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-light rounded-pill-custom position-relative shadow-sm fw-bold">
                         <i class="bi bi-cart3"></i>
                         <span class="ms-1 d-none d-md-inline">Giỏ hàng</span>
                         @await Component.InvokeAsync("CartCount")
                     </a>
 
                     <div class="dropdown">
-                        <button class="btn btn-success rounded-pill fw-bold dropdown-toggle shadow-sm px-3" type="button" data-bs-toggle="dropdown">
+                        <button class="btn btn-light text-success rounded-pill-custom fw-bold dropdown-toggle shadow-sm" type="button" data-bs-toggle="dropdown">
                             <i class="bi bi-person-circle me-1"></i>
                             <span>@(User.Identity.IsAuthenticated? User.Identity.Name : "Tài khoản")</span>
                         </button>
+
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
                             @if (User.Identity.IsAuthenticated)
                             {
@@ -65,11 +138,32 @@
                                     <div class="fw-bold text-success">@User.Identity.Name</div>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a asp-controller="Account" asp-action="Profile" class="dropdown-item"><i class="bi bi-person-lines-fill me-2"></i> Hồ sơ của tôi</a></li>
-                                <li><a asp-controller="Account" asp-action="Settings" class="dropdown-item"><i class="bi bi-bag-check me-2"></i> Đơn hàng đã mua</a></li>
-                                @if (User.IsInRole("Admin"))
+                        <li>
+                            <a asp-controller="Account" asp-action="Profile" class="dropdown-item py-2">
+                                <i class="bi bi-person-badge me-2 text-success"></i> Hồ sơ cá nhân
+                            </a>
+                        </li>
+
+                        <li>
+                            <a asp-controller="Order" asp-action="Checkout" class="dropdown-item py-2">
+                                <i class="bi bi-wallet2 me-2 text-success"></i> Đơn chờ thanh toán
+                            </a>
+                        </li>
+
+                        <li>
+                            <a asp-controller="Order" asp-action="History" class="dropdown-item py-2">
+                                <i class="bi bi-clock-history me-2 text-success"></i> Lịch sử đơn hàng
+                            </a>
+                        </li>
+
+                        <li>
+                            <a asp-controller="Account" asp-action="ChangePass" class="dropdown-item py-2">
+                                <i class="bi bi-shield-lock me-2 text-success"></i> Đổi mật khẩu
+                            </a>
+                        </li>   @if (User.IsInRole("Admin"))
                                 {
-                                    <li><a asp-controller="Admin" asp-action="Dashboard" class="dropdown-item text-primary fw-bold"><i class="bi bi-shield-lock me-2"></i> Quản trị hệ thống</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a asp-controller="Admin" asp-action="Dashboard" class="dropdown-item text-primary fw-bold"><i class="bi bi-shield-lock me-2"></i> Quản trị</a></li>
                                 }
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
@@ -82,8 +176,7 @@
                             }
                             else
                             {
-                                <li><a class="dropdown-item" asp-controller="Account" asp-action="Login"><i class="bi bi-box-arrow-in-right me-2"></i> Đăng nhập</a></li>
-                                <li><a class="dropdown-item" asp-controller="Account" asp-action="Register"><i class="bi bi-pencil-square me-2"></i> Đăng ký</a></li>
+                                <li><a class="dropdown-item" asp-controller="Account" asp-action="Auth"><i class="bi bi-box-arrow-in-right me-2 text-success"></i> Đăng nhập/Đăng ký</a></li>
                             }
                         </ul>
                     </div>
@@ -96,28 +189,56 @@
         @RenderBody()
     </main>
 
-    <footer class="bg-dark text-white pt-5 pb-3 mt-auto">
+    <footer class="bg-dark text-white pt-5 pb-4 mt-auto rounded-top-5 shadow-lg">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-4 mb-4">
+            <div class="row gy-4">
+                <!-- Logo & giới thiệu -->
+                <div class="col-lg-4">
                     <h5 class="text-success fw-bold mb-3">🌱 Life and Trees</h5>
-                    <p class="text-secondary small">Mang thiên nhiên vào không gian sống của bạn với những loại cây được tuyển chọn kỹ lưỡng.</p>
+                    <p class="text-secondary small">
+                        Mang thiên nhiên vào không gian sống của bạn với những loại cây được tuyển chọn kỹ lưỡng.
+                    </p>
+                    <!-- Social icons -->
+                    <div class="d-flex gap-3 mt-3">
+                        <a href="#" class="text-white-50 fs-4"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-white-50 fs-4"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="text-white-50 fs-4"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="text-white-50 fs-4"><i class="bi bi-youtube"></i></a>
+                    </div>
                 </div>
-                <div class="col-6 col-lg-4 mb-4 text-lg-center">
-                    <h6 class="fw-bold mb-3">Liên kết</h6>
-                    <ul class="list-unstyled text-white-50 small">
-                        <li><a href="/" class="text-white-50 text-decoration-none">Trang chủ</a></li>
-                        <li><a href="/Category" class="text-white-50 text-decoration-none">Sản phẩm</a></li>
-                        <li><a href="/Home/Contact" class="text-white-50 text-decoration-none">Liên hệ</a></li>
-                    </ul>
+
+                <!-- Liên kết -->
+                <div class="col-lg-4">
+                    <h6 class="fw-bold mb-3 text-start">Liên kết</h6>
+                    <div class="row">
+                        <div class="col-6">
+                            <ul class="list-unstyled text-white-50 small">
+                                <li><a href="/" class="text-white-50 text-decoration-none"><i class="bi bi-house-door me-2"></i>Trang chủ</a></li>
+                                <li><a href="/Category" class="text-white-50 text-decoration-none"><i class="bi bi-grid me-2"></i>Danh mục</a></li>
+                                <li><a href="/Product" class="text-white-50 text-decoration-none"><i class="bi bi-bag me-2"></i>Sản phẩm</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-6">
+                            <ul class="list-unstyled text-white-50 small">
+                                <li><a href="/Home/About" class="text-white-50 text-decoration-none"><i class="bi bi-info-circle me-2"></i>Chúng tôi</a></li>
+                                <li><a href="/Home/Contact" class="text-white-50 text-decoration-none"><i class="bi bi-envelope me-2"></i>Liên hệ</a></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-6 col-lg-4 mb-4 text-lg-end">
+
+
+                <!-- Liên hệ -->
+                <div class="col-6 col-lg-4 text-lg-end">
                     <h6 class="fw-bold mb-3">Liên hệ</h6>
-                    <p class="text-white-50 small mb-1">Hotline: 0123 456 789</p>
-                    <p class="text-white-50 small">Email: support@lifetrees.com</p>
+                    <p class="text-white-50 small mb-1"><i class="bi bi-telephone me-2"></i>Hotline: 0123 456 789</p>
+                    <p class="text-white-50 small"><i class="bi bi-envelope me-2"></i>Email: support@lifetrees.com</p>
                 </div>
             </div>
-            <hr class="border-secondary my-3" />
+
+            <hr class="border-secondary my-4" />
+
+            <!-- Bản quyền -->
             <div class="text-center text-white-50 small">
                 <p class="mb-0">© 2026 Life and Trees. Chúc bạn một ngày xanh mát!</p>
             </div>

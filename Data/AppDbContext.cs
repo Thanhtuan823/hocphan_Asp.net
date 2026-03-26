@@ -12,17 +12,17 @@ namespace lab2.Data
         // Các bảng chính
         public DbSet<Product> Products { get; set; }
         public DbSet<Categories> Category { get; set; }
-        public DbSet<Order> Orders { get; set; }          // Bảng đơn hàng
-        public DbSet<OrderDetail> OrderDetails { get; set; } // Bảng chi tiết đơn hàng
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderDetail> OrderDetails { get; set; }
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder); // rất quan trọng khi kế thừa IdentityDbContext
+            // Rất quan trọng: Phải gọi base trước để Identity hoạt động đúng
+            base.OnModelCreating(modelBuilder);
 
-            // Không tạo bảng cho CartItem vì chỉ dùng trong session
-            modelBuilder.Ignore<CartItem>();
-
-            // Cấu hình kiểu dữ liệu cho Price (tránh cảnh báo truncate)
+            // Cấu hình kiểu dữ liệu tiền tệ cho SQL Server
             modelBuilder.Entity<OrderDetail>()
                 .Property(o => o.Price)
                 .HasColumnType("decimal(18,2)");
@@ -31,12 +31,18 @@ namespace lab2.Data
                 .Property(p => p.Price)
                 .HasColumnType("decimal(18,2)");
 
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<CartItem>()
+                .Property(c => c.Price)
+                .HasColumnType("decimal(18,2)");
 
+            // Cấu hình quan hệ Order - OrderDetail (1 - nhiều)
             modelBuilder.Entity<OrderDetail>()
-                .HasOne(od => od.Order)              // mỗi OrderDetail có 1 Order
-                .WithMany(o => o.OrderDetails)       // mỗi Order có nhiều OrderDetail
-                .HasForeignKey(od => od.OrderId);    // khóa ngoại là OrderId
+                .HasOne(od => od.Order)
+                .WithMany(o => o.OrderDetails)
+                .HasForeignKey(od => od.OrderId);
+            modelBuilder.Entity<Order>()
+            .Property(o => o.Status)
+            .HasConversion<string>(); // Lưu "Pending", "Completed" thay vì 0, 1
         }
     }
 }

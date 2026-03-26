@@ -6,10 +6,10 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Đăng ký HttpContextAccessor
+// 1. Đăng ký HttpContextAccessor (Cần thiết cho các xử lý liên quan đến User)
 builder.Services.AddHttpContextAccessor();
 
-// Thêm vào trước dòng var app = builder.Build();
+// 2. Cấu hình Ngôn ngữ & Tiền tệ (vi-VN)
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     var supportedCultures = new[] { new System.Globalization.CultureInfo("vi-VN") };
@@ -18,48 +18,43 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     options.SupportedUICultures = supportedCultures;
 });
 
-// Đăng ký SessionCart (giỏ hàng)
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromMinutes(30); // Thời gian sống của session
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
-builder.Services.AddScoped<SessionCart>(sp => SessionCart.GetCart(sp));
 
-//Cookie xóa người đăng nhập khi đóng trình duyệt
+// Cho phép UserName chứa khoảng trắng và các ký tự đặc biệt để làm "Tên hiển thị"
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.User.AllowedUserNameCharacters = null;
+    // Đảm bảo Email là duy nhất
+    options.User.RequireUniqueEmail = true;
+});
+
+// 3. Cấu hình Cookie Đăng nhập
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
-    // Ép Cookie hết hạn sau một khoảng thời gian ngắn nếu không hoạt động
     options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-    // Nếu SlidingExpiration = true, mỗi lần bạn click chuột thời gian sẽ được làm mới
     options.SlidingExpiration = true;
-
-    // Cookie này sẽ bị xóa khi đóng trình duyệt (nếu không chọn Remember Me)
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
 
-// Đăng ký DbContext (SQL Server)
+// 4. Đăng ký DbContext (SQL Server)
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Connection1")));
 
-// Đăng ký Identity (User + Role)
+// 5. Đăng ký Identity (User + Role)
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
-// Đăng ký Repository
+// 6. Đăng ký Repository & Services
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
-// Đăng ký MVC
+// 7. Đăng ký MVC
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Seed role + admin user
-
+// 8. Seed Role + Admin User (Giữ nguyên logic của bạn)
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -74,12 +69,15 @@ using (var scope = app.Services.CreateScope())
     if (adminUser == null)
     {
         adminUser = new IdentityUser { UserName = "admin123", Email = "admin@lifeandtrees.com" };
-        await userManager.CreateAsync(adminUser, "Admin@123");
-        await userManager.AddToRoleAsync(adminUser, "Admin");
+        var result = await userManager.CreateAsync(adminUser, "Admin@123");
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(adminUser, "Admin");
+        }
     }
 }
 
-// Pipeline
+// 9. Pipeline (Middleware)
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -91,13 +89,12 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseSession();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
+// 10. Cấu hình Route
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Account}/{action=Auth}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

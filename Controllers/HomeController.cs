@@ -19,6 +19,15 @@ namespace Lab2.Controllers
             ViewBag.SuccessMessage = TempData["SuccessMessage"];
             return View(products);
         }
+
+        public IActionResult About()
+        {
+            return View();
+        }
+        public IActionResult Contact()
+        {
+            return View();
+        }
         // Hiển thị chi tiết sản phẩm
         public async Task<IActionResult> Details(int id)
         {
@@ -34,18 +43,5 @@ namespace Lab2.Controllers
             return View(product);
         }
 
-        // Trang giới thiệu
-        public IActionResult About()
-        {
-            ViewBag.Message = "Tree Store - Mang thiên nhiên vào không gian sống.";
-            return View();
-        }
-
-        // Trang liên hệ
-        public IActionResult Contact()
-        {
-            ViewBag.Message = "Liên hệ với Tree Store qua email: treestore@gmail.com";
-            return View();
-        }
     }
 }

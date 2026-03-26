@@ -2,54 +2,101 @@
     ViewData["Title"] = "Liên hệ";
 }
 
-<div class="container my-5">
-    <h2 class="text-center text-success mb-4">📞 Liên hệ với chúng tôi</h2>
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold text-success mb-3">
+            <i class="bi bi-headset"></i> Liên hệ với chúng tôi
+        </h1>
+        <p class="text-muted">Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn. Hãy để lại lời nhắn nhé!</p>
+    </div>
 
-    <div class="row">
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card shadow rounded-4 border-0 h-100">
+                <div class="card-body p-4 p-md-5">
+                    <h4 class="mb-4 text-success fw-bold">Gửi tin nhắn cho LifeTrees</h4>
 
-        <!-- FORM -->
-        <div class="col-md-7">
-            <div class="card shadow-sm p-4 border-0">
-                <h5 class="mb-3 text-success">Gửi tin nhắn</h5>
+                    <form method="post">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control rounded-3" id="inputName" placeholder="Nhập tên của bạn" required />
+                            <label for="inputName">Họ và tên</label>
+                        </div>
 
-                <form method="post">
-                    <div class="mb-3">
-                        <label class="form-label">Họ và tên</label>
-                        <input type="text" class="form-control" placeholder="Nhập tên của bạn" required />
-                    </div>
+                        <div class="form-floating mb-3">
+                            <input type="email" class="form-control rounded-3" id="inputEmail" placeholder="example@gmail.com" required />
+                            <label for="inputEmail">Địa chỉ Email</label>
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <input type="email" class="form-control" placeholder="example@gmail.com" required />
-                    </div>
+                        <div class="form-floating mb-4">
+                            <textarea class="form-control rounded-3" id="inputMessage" placeholder="Nhập nội dung..." style="height: 150px" required></textarea>
+                            <label for="inputMessage">Nội dung tin nhắn...</label>
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Nội dung</label>
-                        <textarea class="form-control" rows="4" placeholder="Nhập nội dung..." required></textarea>
-                    </div>
-
-                    <button type="submit" class="btn btn-success w-100">
-                        <i class="bi bi-send"></i> Gửi liên hệ
-                    </button>
-                </form>
+                        <button type="submit" class="btn btn-success btn-lg w-100 rounded-3 fw-bold shadow-sm">
+                            <i class="bi bi-send me-2"></i> Gửi thông tin
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
 
-        <!-- INFO -->
-        <div class="col-md-5">
-            <div class="card shadow-sm p-4 border-0 bg-light">
-                <h5 class="text-success mb-3">Thông tin liên hệ</h5>
+        <div class="col-lg-5">
+            <div class="card shadow rounded-4 border-0 bg-success text-white h-100">
+                <div class="card-body p-4 p-md-5">
+                    <h4 class="fw-bold mb-4">Thông tin liên hệ</h4>
 
-                <p><i class="bi bi-geo-alt text-success"></i> Địa chỉ: Việt Nam</p>
-                <p><i class="bi bi-envelope text-success"></i> Email: support@lifetrees.com</p>
-                <p><i class="bi bi-telephone text-success"></i> Hotline: 0123 456 789</p>
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="bg-white text-success rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 50px; height: 50px; flex-shrink: 0;">
+                            <i class="bi bi-geo-alt fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1 fw-bold">Địa chỉ</h6>
+                            <p class="mb-0 text-white-50">Việt Nam</p>
+                        </div>
+                    </div>
 
-                <hr />
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="bg-white text-success rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 50px; height: 50px; flex-shrink: 0;">
+                            <i class="bi bi-envelope fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1 fw-bold">Email</h6>
+                            <p class="mb-0 text-white-50">support@lifetrees.com</p>
+                        </div>
+                    </div>
 
-                <h6 class="text-success">Giờ làm việc</h6>
-                <p>Thứ 2 - Chủ nhật: 8:00 - 21:00</p>
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="bg-white text-success rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 50px; height: 50px; flex-shrink: 0;">
+                            <i class="bi bi-telephone fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1 fw-bold">Hotline</h6>
+                            <p class="mb-0 text-white-50">0123 456 789</p>
+                        </div>
+                    </div>
+
+                    <hr class="border-white opacity-50 my-4" />
+
+                    <h6 class="fw-bold mb-2"><i class="bi bi-clock me-2"></i>Giờ làm việc</h6>
+                    <p class="mb-0 text-white-50">Thứ 2 - Chủ nhật: 8:00 - 21:00</p>
+                </div>
             </div>
         </div>
+    </div>
 
+    <div class="row mt-5 mb-5 animate__animated animate__fadeIn">
+        <div class="col-12">
+            <div class="card shadow-sm rounded-4 border-0 overflow-hidden">
+                @* --- Header cho bản đồ (Tùy chọn, giúp UI đẹp hơn) --- *@
+                <div class="bg-white p-3 border-bottom d-flex align-items-center">
+                    <i class="bi bi-geo-alt-fill text-success fs-4 me-2"></i>
+                    <span class="fw-bold text-dark">Vị trí cửa hàng: BULL ARENA Fishing Park</span>
+                </div>
+
+                <div class="ratio ratio-21x9" style="min-height: 400px;">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3225.737286263009!2d107.15383067405388!3d12.08720433365258!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3173045733ba9107%3A0x47b9f7939c9150fa!2zVsaw4budbiBRdeG7kWMgZ2lhIELDuSBHaWEgTeG6rXA!5e1!3m2!1svi!2s!4v1774511018081!5m2!1svi!2s" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

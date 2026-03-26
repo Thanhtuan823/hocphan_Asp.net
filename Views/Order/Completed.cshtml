@@ -2,16 +2,119 @@
     ViewData["Title"] = "Hoàn tất đơn hàng";
 }
 
-<div class="container mt-5">
-    <div class="alert alert-success text-center">
-        <h2>🎉 Đặt hàng thành công!</h2>
-        <p>Cảm ơn bạn đã mua sắm tại <strong>Life and Trees</strong>.</p>
-        <p>Đơn hàng của bạn đã được ghi nhận và sẽ được xử lý trong thời gian sớm nhất.</p>
-    </div>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6 text-center">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden animate-in">
+                <div class="success-header py-5 bg-success text-white">
+                    <div class="icon-circle mb-3">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+                    <h2 class="fw-bold mb-0">Đặt Hàng Thành Công!</h2>
+                </div>
 
-    <div class="text-center mt-4">
-        <a asp-controller="Product" asp-action="Index" class="btn btn-primary">
-            Quay lại trang sản phẩm
-        </a>
+                <div class="card-body p-5">
+                    <div class="mb-4">
+                        <p class="lead text-dark fw-semibold">Cảm ơn bạn đã tin chọn <span class="text-success">Life and Trees</span></p>
+                        <p class="text-muted">
+                            Đơn hàng của bạn đã được hệ thống ghi nhận thành công.
+                            Chúng mình sẽ sớm liên hệ để xác nhận và trao những "mầm xanh" xinh xắn đến tay bạn.
+                        </p>
+                    </div>
+
+                    <div class="row g-3 mb-4 text-start">
+                        <div class="col-12">
+                            <div class="d-flex align-items-center p-3 bg-light rounded-3 border-start border-success border-4">
+                                <i class="bi bi-truck fs-3 text-success me-3"></i>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">Giao hàng dự kiến</h6>
+                                    <small class="text-muted">Từ 2 - 4 ngày làm việc</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <a asp-controller="Product" asp-action="Index" class="btn btn-success btn-lg rounded-pill fw-bold shadow-sm transition-hover">
+                            <i class="bi bi-cart-plus me-2"></i>Tiếp tục mua sắm
+                        </a>
+                        <a href="/" class="btn btn-link text-decoration-none text-muted fw-semibold mt-2">
+                            Quay về trang chủ
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <p class="mt-4 text-muted small">
+                Bạn cần hỗ trợ? Liên hệ Hotline: <span class="fw-bold text-success">0123.456.789</span>
+            </p>
+        </div>
     </div>
 </div>
+
+@section Styles {
+    <style>
+        /* Hiệu ứng hiện hình */
+        .animate-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @@keyframes fadeInUp {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        /* Vòng tròn icon check */
+        .icon-circle {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 3px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            font-size: 2.5rem;
+            animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.3s both;
+        }
+
+        @@keyframes scaleIn {
+            from
+
+        {
+            transform: scale(0);
+        }
+
+        to {
+            transform: scale(1);
+        }
+
+        }
+
+        /* Hiệu ứng nút */
+        .transition-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(25, 135, 84, 0.3) !important;
+            filter: brightness(1.1);
+        }
+
+        .success-header {
+            background: linear-gradient(135deg, #198754 0%, #2fb344 100%);
+        }
+
+        .card {
+            border: 1px solid rgba(0,0,0,0.05) !important;
+        }
+    </style>
+}

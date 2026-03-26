@@ -1,0 +1,78 @@
+﻿@model lab2.Models.ChangePass
+
+@{
+    ViewData["Title"] = "Thiết lập mật khẩu";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden animate__animated animate__fadeIn">
+                <div class="card-header bg-success text-white text-center py-4 border-0">
+                    <i class="bi bi-shield-lock-fill display-4 mb-2"></i>
+                    <h4 class="fw-bold mb-0">Đổi Mật Khẩu</h4>
+                    <p class="small opacity-75 mb-0">Bảo mật tài khoản @User.Identity.Name</p>
+                </div>
+
+                <div class="card-body p-4 p-lg-5">
+                    <form asp-action="ChangePass" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger border-0 small mb-3 shadow-sm py-2"></div>
+
+                        <div class="mb-4">
+                            <label asp-for="OldPassword" class="form-label fw-bold text-muted small"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0"><i class="bi bi-key text-success"></i></span>
+                                <input asp-for="OldPassword" class="form-control bg-light border-0 py-2 shadow-none" placeholder="Nhập mật khẩu hiện tại" />
+                            </div>
+                            <span asp-validation-for="OldPassword" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="NewPassword" class="form-label fw-bold text-muted small"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0"><i class="bi bi-lock text-success"></i></span>
+                                <input asp-for="NewPassword" class="form-control bg-light border-0 py-2 shadow-none" placeholder="Tối thiểu 6 ký tự" />
+                            </div>
+                            <span asp-validation-for="NewPassword" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="ConfirmPassword" class="form-label fw-bold text-muted small"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0"><i class="bi bi-check2-circle text-success"></i></span>
+                                <input asp-for="ConfirmPassword" class="form-control bg-light border-0 py-2 shadow-none" placeholder="Nhập lại mật khẩu mới" />
+                            </div>
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-grid gap-2 pt-2">
+                            <button type="submit" class="btn btn-success btn-lg rounded-pill shadow-sm fw-bold py-2 border-0">
+                                LƯU THAY ĐỔI
+                            </button>
+                            <a asp-action="Profile" class="btn btn-link text-decoration-none text-muted small text-center mt-2">
+                                <i class="bi bi-arrow-left"></i> Quay lại hồ sơ
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* CSS Tùy chỉnh bo góc Input Group */
+    .input-group-text {
+        border-radius: 12px 0 0 12px !important;
+    }
+
+    .form-control {
+        border-radius: 0 12px 12px 0 !important;
+    }
+
+    .btn-success:hover {
+        background-color: #157347;
+        transform: translateY(-1px);
+        transition: all 0.3s ease;
+    }
+</style>

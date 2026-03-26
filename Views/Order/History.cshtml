@@ -1,0 +1,188 @@
+﻿@model IEnumerable<lab2.Models.Order>
+@{
+    ViewData["Title"] = "Lịch sử mua hàng";
+    Layout = "~/Views/Shared/_LayoutUser.cshtml";
+}
+
+<div class="container py-5">
+    <div class="d-flex align-items-center mb-4 animate__animated animate__fadeIn">
+        <div class="bg-success text-white p-3 rounded-circle me-3 shadow-sm">
+            <i class="bi bi-bag-check fs-4"></i>
+        </div>
+        <div>
+            <h2 class="fw-bold text-success mb-0">ĐƠN HÀNG CỦA TÔI</h2>
+            <p class="text-muted mb-0">Theo dõi trạng thái và quản lý các đơn hàng đã đặt</p>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success border-0 shadow-sm d-flex align-items-center animate__animated animate__bounceIn mb-4" role="alert">
+            <i class="bi bi-check-circle-fill fs-5 me-2"></i>
+            <div>@TempData["SuccessMessage"]</div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 shadow-sm rounded-4 bg-white animate__animated animate__fadeInUp">
+            <img src="https://cdn-icons-png.flaticon.com/512/11329/11329061.png" width="150" class="mb-3 opacity-50" />
+            <h4 class="text-muted fw-bold">Bạn chưa có đơn hàng nào!</h4>
+            <p class="text-muted small">Hãy khám phá các sản phẩm tuyệt vời của chúng tôi ngay nhé.</p>
+            <a asp-controller="Product" asp-action="Index" class="btn btn-success mt-3 px-5 py-2 rounded-pill shadow-sm fw-bold">
+                MUA SẮM NGAY
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive shadow-lg rounded-4 bg-white p-3 animate__animated animate__fadeInUp">
+            <table class="table table-hover align-middle border-0">
+                <thead class="bg-light">
+                    <tr class="text-muted small text-uppercase">
+                        <th class="ps-3 border-0">Mã đơn</th>
+                        <th class="border-0">Ngày đặt</th>
+                        <th class="border-0">Sản phẩm</th>
+                        <th class="border-0">Số lượng</th>
+                        <th class="border-0">Tổng tiền</th>
+                        <th class="border-0 text-center">Trạng thái</th>
+                        <th class="text-end pe-3 border-0">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model)
+                    {
+                        <tr>
+                            <td class="ps-3 fw-bold text-dark">#@order.OrderId</td>
+                            <td class="small text-muted">@order.OrderPlaced.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                                <div class="small">
+                                    @foreach (var detail in order.OrderDetails)
+                                    {
+                                        <div class="mb-1 text-truncate" style="max-width: 200px;">
+                                            <i class="bi bi-dot text-success"></i> @detail.ProductName
+                                           
+                                        </div>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <div class="small">
+                                    @foreach (var detail in order.OrderDetails)
+                                    {
+                                        <div class="mb-1 text-muted fw-medium">
+                                            x @detail.Quantity
+                                        </div>
+                                    }
+                                </div>
+                            </td>
+                            <td class="fw-bold text-success">@order.TotalAmount.ToString("N0") đ</td>
+                            <td class="text-center">
+                                @switch (order.Status)
+                                {
+                                    case OrderStatus.Pending:
+                                        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill shadow-sm"><i class="bi bi-clock me-1"></i> Chờ xử lý</span>
+                                        break;
+                                    case OrderStatus.CancelRequested:
+                                        <span class="badge bg-info text-white px-3 py-2 rounded-pill shadow-sm"><i class="bi bi-question-circle me-1"></i> Hủy đơn hàng</span>
+                                        break;
+                                    case OrderStatus.Shipping:
+                                        <span class="badge bg-primary text-white px-3 py-2 rounded-pill shadow-sm"><i class="bi bi-truck me-1"></i> Đang giao</span>
+                                        break;
+                                    case OrderStatus.Success:
+                                        <span class="badge bg-success text-white px-3 py-2 rounded-pill shadow-sm"><i class="bi bi-check-lg me-1"></i> Thành công</span>
+                                        break;
+                                    case OrderStatus.Cancelled:
+                                        <span class="badge bg-danger text-white px-3 py-2 rounded-pill shadow-sm"><i class="bi bi-x-circle me-1"></i> Đã hủy</span>
+                                        break;
+                                }
+                            </td>
+                            <td class="text-end pe-3">
+                                <div class="d-flex justify-content-end gap-2">
+                                    @if (order.Status == OrderStatus.Pending)
+                                    {
+                                        <button type="button" class="btn btn-danger btn-sm rounded-pill px-3 shadow-sm fw-bold border-0"
+                                                onclick="openCancelModal('@order.OrderId')">
+                                            HỦY ĐƠN
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<div class="modal fade animate__animated animate__fadeIn" id="cancelOrderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header bg-danger text-white border-0 py-3" style="border-radius: 20px 20px 0 0;">
+                <h5 class="modal-title fw-bold"><i class="bi bi-exclamation-octagon me-2"></i>XÁC NHẬN HỦY ĐƠN</h5>
+                <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="RequestCancel" method="post">
+                <div class="modal-body p-4">
+                    <input type="hidden" id="cancelOrderId" name="orderId" />
+                    <p class="text-dark fw-medium mb-1">Chúng tôi rất tiếc khi bạn muốn hủy đơn!</p>
+                    <p class="text-muted small mb-4">Lưu ý: Sau khi gửi yêu cầu, Admin sẽ kiểm tra và phản hồi yêu cầu của bạn.</p>
+
+                    <div class="form-group">
+                        <label class="fw-bold text-dark mb-2">Lý do hủy đơn <small class="text-danger">*</small></label>
+                        <textarea name="reason" class="form-control border-2 shadow-sm focus-ring-danger"
+                                  rows="4" placeholder="Vui lòng nhập lý do cụ thể..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-3 justify-content-center">
+                    <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">GIỮ LẠI ĐƠN</button>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4 shadow-lg fw-bold">GỬI YÊU CẦU</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openCancelModal(orderId) {
+            document.getElementById('cancelOrderId').value = orderId;
+            var myModal = new bootstrap.Modal(document.getElementById('cancelOrderModal'));
+            myModal.show();
+        }
+    </script>
+}
+
+@section Styles {
+    <style>
+        .table thead th {
+            border: none !important;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s;
+        }
+
+            .table tbody tr:hover {
+                background-color: #f8fdf9;
+            }
+
+        .badge {
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+
+        .focus-ring-danger:focus {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25) !important;
+        }
+
+        .text-truncate {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+    </style>
+}

@@ -33,13 +33,25 @@ namespace lab2.Controllers.Management
         }
 
         [HttpPost]
-        public IActionResult UpdateStatus(int id, bool shipped)
+        [Authorize(Roles = "Admin")] // Chỉ Admin mới được quyền đổi trạng thái
+        public IActionResult UpdateStatus(int orderId, OrderStatus status)
         {
-            var order = _context.Orders.Find(id);
-            if (order == null) return NotFound();
+            // Tìm đơn hàng theo ID (Lưu ý: dùng 'orderId' cho khớp với View)
+            var order = _context.Orders.Find(orderId);
 
-            order.Shipped = shipped;
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            // Cập nhật trạng thái mới (Pending, Shipping, Success, Cancelled)
+            order.Status = status;
+
+            // Lưu thay đổi vào Database
             _context.SaveChanges();
+
+            // Thông báo cho Admin (Tùy chọn)
+            TempData["message"] = $"Đã cập nhật đơn hàng #{order.OrderId} thành công.";
 
             return RedirectToAction("Index");
         }

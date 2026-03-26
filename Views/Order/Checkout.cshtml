@@ -1,115 +1,143 @@
 ﻿@model lab2.Models.Order
 @{
     ViewData["Title"] = "Xác nhận đặt hàng";
-    var cart = ViewBag.Cart as SessionCart;
-    Layout = "~/Views/Shared/_LayoutUser.cshtml"; // Hoặc Layout khách hàng của bạn
+    var cartItems = ViewBag.CartItems as IEnumerable<lab2.Models.CartItem>;
+    Layout = "~/Views/Shared/_LayoutUser.cshtml";
 }
 
 <div class="container py-5">
-    <div class="text-center mb-5 animate-fade">
-        <h2 class="fw-bold text-success">🚚 XÁC NHẬN ĐẶT HÀNG</h2>
-        <p class="text-muted">Vui lòng kiểm tra kỹ thông tin trước khi hoàn tất đơn hàng</p>
-    </div>
+    @if (cartItems == null || !cartItems.Any())
+    {
+        @* --- GIAO DIỆN KHI CHƯA CÓ SẢN PHẨM --- *@
+        <div class="text-center py-5 animate-fade">
+            <div class="mb-4">
+                <img src="https://cdn-icons-png.flaticon.com/512/11329/11329061.png" width="180" class="opacity-75" alt="Empty Cart" />
+            </div>
+            <h2 class="fw-bold text-dark">Giỏ hàng của bạn đang trống!</h2>
+            <p class="text-muted fs-5 mb-4">Hiện tại chưa có đơn hàng nào chờ thanh toán.<br>Vui lòng mời bạn đi mua sắm tiếp để chọn được những sản phẩm ưng ý.</p>
 
-    <form asp-controller="Order" asp-action="Checkout" method="post" class="row g-4">
-        <div class="col-lg-7">
-            <div class="card border-0 shadow-sm rounded-4 p-4">
-                <h5 class="fw-bold mb-4"><i class="bi bi-geo-alt text-success me-2"></i>Thông tin người nhận</h5>
+            <a asp-controller="Product" asp-action="Index" class="btn btn-success btn-lg rounded-pill px-5 fw-bold shadow-sm transition-btn">
+                <i class="bi bi-bag-plus me-2"></i> ĐI MUA SẮM NGAY
+            </a>
+        </div>
+    }
+    else
+    {
+        @* --- GIAO DIỆN FORM THANH TOÁN KHI ĐÃ CÓ HÀNG --- *@
+        <div class="text-center mb-5 animate-fade">
+            <h2 class="fw-bold text-success">🚚 XÁC NHẬN ĐẶT HÀNG</h2>
+            <p class="text-muted">Vui lòng kiểm tra kỹ thông tin trước khi hoàn tất đơn hàng</p>
+        </div>
 
-                <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+        @if (!ViewData.ModelState.IsValid && ViewData.ModelState[""]?.Errors.Count > 0)
+        {
+            <div class="alert alert-danger border-0 shadow-sm rounded-4 mb-4 animate-fade">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                @foreach (var error in ViewData.ModelState[""].Errors)
+                {
+                    <span>@error.ErrorMessage</span>
+                }
+            </div>
+        }
 
-                <div class="mb-3">
-                    <label class="form-label fw-semibold small text-muted">HỌ VÀ TÊN</label>
-                    <input asp-for="Name" class="form-control rounded-3 border-2 shadow-none focus-green" placeholder="Nhập tên người nhận..." />
-                    <span asp-validation-for="Name" class="text-danger small"></span>
-                </div>
+        <form asp-controller="Order" asp-action="Checkout" method="post" class="row g-4">
+            @Html.AntiForgeryToken()
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-semibold small text-muted">ĐỊA CHỈ 1 (Số nhà, tên đường)</label>
-                        <input asp-for="Address1" class="form-control rounded-3 border-2 shadow-none focus-green" placeholder="VD: 123 Lê Lợi..." />
-                        <span asp-validation-for="Address1" class="text-danger small"></span>
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm rounded-4 p-4">
+                    <h5 class="fw-bold mb-4"><i class="bi bi-geo-alt text-success me-2"></i>Thông tin người nhận</h5>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-muted">HỌ VÀ TÊN</label>
+                        <input asp-for="Name" class="form-control rounded-3 border-2 shadow-none focus-green" placeholder="Nhập tên người nhận..." />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-semibold small text-muted">ĐỊA CHỈ 2 (Ghi chú thêm)</label>
-                        <input asp-for="Address2" class="form-control rounded-3 border-2 shadow-none focus-green" placeholder="Phòng, số tầng (nếu có)..." />
-                    </div>
-                </div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-semibold small text-muted">THÀNH PHỐ</label>
-                        <input asp-for="City" class="form-control rounded-3 border-2 shadow-none focus-green" />
-                        <span asp-validation-for="City" class="text-danger small"></span>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold small text-muted">ĐỊA CHỈ (Số nhà, tên đường)</label>
+                            <input asp-for="Address1" class="form-control rounded-3 border-2 shadow-none focus-green" placeholder="VD: 123 Lê Lợi..." />
+                            <span asp-validation-for="Address1" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold small text-muted">GHI CHÚ (Số tầng, phòng...)</label>
+                            <input asp-for="Address2" class="form-control rounded-3 border-2 shadow-none focus-green" placeholder="Không bắt buộc..." />
+                        </div>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-semibold small text-muted">MÃ BƯU ĐIỆN (ZIP)</label>
-                        <input asp-for="Zip" class="form-control rounded-3 border-2 shadow-none focus-green" />
-                        <span asp-validation-for="Zip" class="text-danger small"></span>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold small text-muted">THÀNH PHỐ</label>
+                            <input asp-for="City" class="form-control rounded-3 border-2 shadow-none focus-green" placeholder="TP. Hồ Chí Minh..." />
+                            <span asp-validation-for="City" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold small text-muted">MÃ ZIP / MÃ VÙNG</label>
+                            <input asp-for="Zip" class="form-control rounded-3 border-2 shadow-none focus-green" placeholder="700000..." />
+                            <span asp-validation-for="Zip" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-muted">SỐ ĐIỆN THOẠI</label>
+                        <input asp-for="PhoneNumber" class="form-control rounded-3 border-2 shadow-none focus-green" placeholder="090..." />
+                        <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-lg-5">
-            <div class="card border-0 shadow-lg rounded-4 overflow-hidden animate-slide-right">
-                <div class="card-header bg-success text-white py-3 border-0">
-                    <h5 class="mb-0 fw-bold"><i class="bi bi-cart-check me-2"></i>Đơn hàng của bạn</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-borderless align-middle mb-0">
-                            <thead class="bg-light">
-                                <tr class="small text-muted text-uppercase">
-                                    <th class="ps-4">Sản phẩm</th>
-                                    <th class="text-center">Số lượng</th>
-                                    <th class="text-end pe-4">Thành tiền</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (cart != null && cart.Items.Any())
-                                {
-                                    foreach (var item in cart.Items)
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden animate-slide-right">
+                    <div class="card-header bg-success text-white py-3 border-0 text-center">
+                        <h5 class="mb-0 fw-bold">TÓM TẮT ĐƠN HÀNG</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-borderless align-middle mb-0">
+                                <thead class="bg-light">
+                                    <tr class="small text-muted text-uppercase">
+                                        <th class="ps-4">Sản phẩm</th>
+                                        <th class="text-center">SL</th>
+                                        <th class="text-end pe-4">Thành tiền</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        decimal totalOrder = 0;
+                                    }
+                                    @foreach (var item in cartItems)
                                     {
+                                        var subtotal = item.Price * item.Quantity;
+                                        totalOrder += subtotal;
                                         <tr class="border-bottom">
                                             <td class="ps-4 py-3">
-                                                <div class="fw-bold text-dark">@item.ProductName</div>
-                                                <div class="small text-muted">@item.Price.ToString("#,##0") đ</div>
+                                                <div class="fw-bold text-dark small">@item.ProductName</div>
+                                                <div class="x-small text-muted">@item.Price.ToString("N0") đ</div>
                                             </td>
-                                            <td class="text-center">x @item.Quantity</td>
-                                            <td class="text-end pe-4 fw-bold text-success">
-                                                @cart.TotalQuantity.ToString("#,##0")) đ
-                                            </td>
+                                            <td class="text-center small text-muted">@item.Quantity</td>
+                                            <td class="text-end pe-4 fw-bold text-success small">@subtotal.ToString("N0") đ</td>
                                         </tr>
                                     }
-                                    <tr class="bg-light">
+                                    <tr class="bg-light shadow-sm">
                                         <td colspan="2" class="ps-4 py-3 fw-bold fs-5">TỔNG CỘNG:</td>
-                                        <td class="text-end pe-4 py-3 fw-bold fs-5 text-danger">
-                                            @cart.TotalPrice.ToString("#,##0") đ
-                                        </td>
+                                        <td class="text-end pe-4 py-3 fw-bold fs-5 text-danger">@totalOrder.ToString("N0") đ</td>
                                     </tr>
-                                }
-                                else
-                                {
-                                    <tr>
-                                        <td colspan="3" class="text-center py-5 text-muted">Giỏ hàng trống</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white p-4 border-0">
+                        <button type="submit" class="btn btn-success w-100 py-3 rounded-pill fw-bold shadow transition-btn">
+                            HOÀN TẤT THANH TOÁN <i class="bi bi-shield-check ms-2"></i>
+                        </button>
+                        <a asp-controller="Cart" asp-action="Index" class="btn btn-link w-100 text-muted text-decoration-none mt-2 small">
+                            <i class="bi bi-chevron-left"></i> Quay lại giỏ hàng
+                        </a>
                     </div>
                 </div>
-                <div class="card-footer bg-white p-4 border-0">
-                    <button type="submit" class="btn btn-success w-100 py-3 rounded-pill fw-bold shadow-sm transition-btn">
-                        HOÀN TẤT ĐẶT HÀNG <i class="bi bi-arrow-right ms-2"></i>
-                    </button>
-                    <a asp-controller="Cart" asp-action="Index" class="btn btn-link w-100 text-muted text-decoration-none mt-2 small">
-                        Chỉnh sửa giỏ hàng
-                    </a>
-                </div>
             </div>
-        </div>
-    </form>
+        </form>
+    }
 </div>
 
 @section Styles {
@@ -150,20 +178,17 @@
 
         .focus-green:focus {
             border-color: #198754 !important;
-            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.1) !important;
+            box-shadow: 0 0 0 0.25rem rgba(25,135,84, 0.1) !important;
         }
 
-        .transition-btn {
-            transition: 0.3s ease;
+        .transition-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+            box-shadow: 0 5px 15px rgba(25,135,84, 0.3) !important;
         }
 
-            .transition-btn:hover {
-                transform: translateY(-2px);
-                filter: brightness(1.1);
-            }
-
-        .table > :not(caption) > * > * {
-            padding: 1rem 0.5rem;
+        .x-small {
+            font-size: 0.75rem;
         }
     </style>
 }

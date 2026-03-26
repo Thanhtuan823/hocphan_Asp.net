@@ -52,12 +52,15 @@ namespace lab2.Controllers
             return View(category);
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var categories = _context.Category.ToList();
-            ViewBag.SuccessMessage = TempData["SuccessMessage"];
+            // Lấy danh mục và nạp kèm danh sách sản phẩm để đếm số lượng (Include)
+            var categories = await _context.Category
+                .Include(c => c.Products)
+                .ToListAsync();
+
             return View(categories);
         }
-     
+
     }
 }
