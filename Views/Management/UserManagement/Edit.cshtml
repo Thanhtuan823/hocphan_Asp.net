@@ -1,5 +1,128 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model lab2.Models.UserWithRoles
 @{
+    ViewData["Title"] = "Chỉnh sửa hồ sơ";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            @* --- NÚT QUAY LẠI --- *@
+            <div class="mb-4">
+                <a asp-action="Index" class="text-decoration-none text-muted fw-bold small d-inline-flex align-items-center">
+                    <i class="bi bi-arrow-left-circle-fill fs-4 me-2 text-success"></i> QUAY LẠI DANH SÁCH
+                </a>
+            </div>
+
+            @* --- CARD HỒ SƠ --- *@
+            <div class="card shadow-lg rounded-4 border-0 overflow-hidden animate__animated animate__fadeInUp">
+                <div class="card-header bg-success py-5 text-center position-relative">
+                    <div class="avatar-large mx-auto shadow-sm">
+                        @(Model.UserName?.Substring(0, 1).ToUpper() ?? "U")
+                    </div>
+                    <h4 class="text-white fw-bold mt-3 mb-0 text-uppercase">Hồ sơ người dùng</h4>
+                    <p class="text-white-50 small mb-0">ID: @Model.Id</p>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    @* Thông báo lỗi hệ thống *@
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger border-0 rounded-3 small text-center"></div>
+
+                    <form asp-action="Edit" method="post">
+                        @Html.AntiForgeryToken()
+
+                        @* Các trường ẩn để đảm bảo dữ liệu gửi về Controller đầy đủ *@
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="Email" />
+
+                        @* 1. Email (Read-only) *@
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-muted small ms-2">ĐỊA CHỈ EMAIL (Dùng để đăng nhập)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-secondary-subtle border-end-0 rounded-pill-start px-3">
+                                    <i class="bi bi-envelope-lock-fill text-muted"></i>
+                                </span>
+                                <input asp-for="Email" class="form-control bg-secondary-subtle border-start-0 rounded-pill-end py-2 shadow-none text-muted" readonly />
+                            </div>
+                        </div>
+
+                        @* 2. Username (Edit) *@
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-muted small ms-2 text-success">TÊN HIỂN THỊ (NICKNAME)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0 rounded-pill-start px-3">
+                                    <i class="bi bi-person-circle text-success"></i>
+                                </span>
+                                <input asp-for="UserName" class="form-control border-start-0 rounded-pill-end py-2 shadow-none" placeholder="Nhập tên mới..." required />
+                            </div>
+                            <span asp-validation-for="UserName" class="text-danger small ms-2"></span>
+                        </div>
+
+                        @* 3. Số điện thoại (Edit) *@
+                        <div class="mb-5">
+                            <label class="form-label fw-bold text-muted small ms-2 text-success">SỐ ĐIỆN THOẠI</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0 rounded-pill-start px-3">
+                                    <i class="bi bi-telephone-fill text-success"></i>
+                                </span>
+                                <input asp-for="PhoneNumber" class="form-control border-start-0 rounded-pill-end py-2 shadow-none" placeholder="0xxx.xxx.xxx" />
+                            </div>
+                            <span asp-validation-for="PhoneNumber" class="text-danger small ms-2"></span>
+                        </div>
+
+                        @* Nút lưu dữ liệu *@
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success rounded-pill py-3 fw-bold shadow-sm btn-hover-scale">
+                                <i class="bi bi-floppy-fill me-2"></i> LƯU THÔNG TIN HỒ SƠ
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .avatar-large {
+            width: 90px;
+            height: 90px;
+            background-color: #fff;
+            color: #198754;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 2.2rem;
+            font-weight: 800;
+            border: 4px solid rgba(255,255,255,0.4);
+        }
+
+        .rounded-pill-start {
+            border-radius: 50px 0 0 50px !important;
+            border-color: #e9ecef;
+        }
+
+        .rounded-pill-end {
+            border-radius: 0 50px 50px 0 !important;
+            border-color: #e9ecef;
+        }
+
+        .bg-secondary-subtle {
+            background-color: #f1f3f5 !important;
+        }
+
+        .btn-hover-scale {
+            transition: transform 0.2s;
+        }
+
+            .btn-hover-scale:hover {
+                transform: scale(1.02);
+            }
+
+        .form-control:focus {
+            border-color: #198754 !important;
+        }
+    </style>
 }

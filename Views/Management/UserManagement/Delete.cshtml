@@ -4,13 +4,26 @@
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<div class="container mt-4">
-    <h2 class="text-danger fw-bold mb-3">⚠️ Xóa người dùng</h2>
-    <p>Bạn có chắc chắn muốn xóa tài khoản <strong>@Model.UserName</strong> không?</p>
+<div class="container mt-4 animate__animated animate__fadeIn">
+    <div class="card border-0 shadow-sm rounded-4 p-4">
+        <h2 class="text-danger fw-bold mb-3"><i class="bi bi-exclamation-triangle-fill"></i> Xác nhận xóa</h2>
+        <p class="fs-5">Bạn có chắc chắn muốn xóa tài khoản <strong>@Model.UserName</strong> không?</p>
+        <p class="text-muted small">Lưu ý: Hành động này không thể hoàn tác. Mọi dữ liệu liên quan đến người dùng này sẽ bị mất.</p>
 
-    <form asp-action="DeleteConfirmed" method="post">
-        <input type="hidden" asp-for="Id" />
-        <button type="submit" class="btn btn-danger">Xóa</button>
-        <a asp-action="Index" class="btn btn-secondary">Hủy</a>
-    </form>
+        <hr />
+
+        <form asp-controller="UserManagement" asp-action="DeleteConfirmed" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" name="id" />
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-danger px-4 rounded-pill fw-bold shadow-sm">
+                    <i class="bi bi-trash"></i> XÁC NHẬN XÓA
+                </button>
+                <a asp-action="Index" class="btn btn-light px-4 rounded-pill fw-bold border">
+                    HỦY
+                </a>
+            </div>
+        </form>
+    </div>
 </div>

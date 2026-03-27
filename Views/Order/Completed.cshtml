@@ -38,8 +38,8 @@
                         <a asp-controller="Product" asp-action="Index" class="btn btn-success btn-lg rounded-pill fw-bold shadow-sm transition-hover">
                             <i class="bi bi-cart-plus me-2"></i>Tiếp tục mua sắm
                         </a>
-                        <a href="/" class="btn btn-link text-decoration-none text-muted fw-semibold mt-2">
-                            Quay về trang chủ
+                        <a asp-controller="Order" asp-action="History" class="btn btn-outline-success rounded-pill fw-bold">
+                            <i class="bi bi-clock-history me-2"></i>Xem lịch sử đơn hàng
                         </a>
                     </div>
                 </div>
@@ -115,6 +115,10 @@
 
         .card {
             border: 1px solid rgba(0,0,0,0.05) !important;
+        }
+
+        .transition-hover {
+            transition: all 0.3s ease; 
         }
     </style>
 }

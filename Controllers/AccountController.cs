@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -15,15 +16,17 @@ namespace Shopping.Controllers
         private readonly UserManager<IdentityUser> userManager;
         private readonly SignInManager<IdentityUser> signInManager;
         private readonly AppDbContext context;
+        private readonly IEmailSender _emailSender;
 
         public AccountController(UserManager<IdentityUser> userManager,
                                  SignInManager<IdentityUser> signInManager,
-                                 AppDbContext _context)
+                                 AppDbContext _context,
+                                 IEmailSender emailSender)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
             context= _context;
-
+            _emailSender = emailSender;
         }
 
         [HttpGet]
@@ -38,37 +41,91 @@ namespace Shopping.Controllers
             await signInManager.SignOutAsync();
             return RedirectToAction("Auth", "Account"); // quay về trang đăng nhập/đăng ký
         }
-[HttpPost]
-public async Task<IActionResult> Register(RegisterViewModel model)
-{
-    if (ModelState.IsValid)
-    {
-        var user = new IdentityUser { UserName = model.Email, Email = model.Email };
-        var result = await userManager.CreateAsync(user, model.Password);
 
-        if (result.Succeeded)
+        // 1. Trang nhập Email để lấy lại mật khẩu
+        [HttpGet]
+        public IActionResult ForgotPassword() => RedirectToAction("Auth");
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(string email)
         {
-            // Gán role User
-            await userManager.AddToRoleAsync(user, "User");
+            // 1. Kiểm tra định dạng Email
+            if (string.IsNullOrEmpty(email) || !new System.ComponentModel.DataAnnotations.EmailAddressAttribute().IsValid(email))
+            {
+                TempData["ErrorMsg"] = "Vui lòng nhập đúng định dạng Email!";
+                return RedirectToAction("Auth");
+            }
 
-            // --- CHỈNH SỬA TẠI ĐÂY ---
-            // Bỏ dòng signInManager.SignInAsync nếu muốn họ tự đăng nhập lại
-            // Hoặc nếu muốn họ đăng nhập luôn nhưng vẫn hiện thông báo thì giữ nguyên
-            
-            TempData["RegisterSuccess"] = true;
-            TempData["SuccessMsg"] = "Tài khoản " + model.Email + " đã được tạo thành công!";
+            // 2. Kiểm tra đuôi Gmail
+            if (!email.ToLower().EndsWith("@gmail.com"))
+            {
+                TempData["ErrorMsg"] = "Hệ thống chỉ hỗ trợ Gmail!";
+                return RedirectToAction("Auth");
+            }
 
-            return RedirectToAction("Index", "Home"); 
+            var user = await userManager.FindByEmailAsync(email);
+            if (user != null)
+            {
+                // 3. Tạo mật khẩu tạm và Reset trong Database
+                string tempPassword = "Plant@" + new Random().Next(1000, 9999);
+                var token = await userManager.GeneratePasswordResetTokenAsync(user);
+                var result = await userManager.ResetPasswordAsync(user, token, tempPassword);
+
+                if (result.Succeeded)
+                {
+                    // 4. Gửi Mail
+                    string message = $@"
+                <div style='font-family: Arial; padding: 20px; border: 1px solid #eee;'>
+                    <h3 style='color: #198754;'>Mật khẩu tạm thời - Life & Trees</h3>
+                    <p>Chào bạn, mật khẩu mới của bạn là: <b style='font-size:18px; color:green;'>{tempPassword}</b></p>
+                    <p>Vui lòng đăng nhập và đổi lại mật khẩu ngay.</p>
+                </div>";
+                    await _emailSender.SendEmailAsync(email, "Khôi phục mật khẩu", message);
+                    TempData["SuccessMsg"] = "Mật khẩu mới đã được gửi vào Gmail của bạn!";
+                }
+            }
+            else
+            {
+                // Vẫn báo thành công để bảo mật thông tin
+                TempData["SuccessMsg"] = "Nếu email tồn tại, mật khẩu đã được gửi đi!";
+            }
+
+            return RedirectToAction("Auth");
         }
 
-        foreach (var error in result.Errors)
-            ModelState.AddModelError("", error.Description);
-    }
+
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = new IdentityUser { UserName = model.Email, Email = model.Email };
+                var result = await userManager.CreateAsync(user, model.Password);
+
+                if (result.Succeeded)
+                {
+                    // Gán role User
+                    await userManager.AddToRoleAsync(user, "User");
+
+                    // --- CHỈNH SỬA TẠI ĐÂY ---
+                    // Bỏ dòng signInManager.SignInAsync nếu muốn họ tự đăng nhập lại
+                    // Hoặc nếu muốn họ đăng nhập luôn nhưng vẫn hiện thông báo thì giữ nguyên
+            
+                    TempData["RegisterSuccess"] = true;
+                    TempData["SuccessMsg"] = "Tài khoản " + model.Email + " đã được tạo thành công!";
+
+                    return RedirectToAction("Index", "Home"); 
+                }
+
+                foreach (var error in result.Errors)
+                    ModelState.AddModelError("", error.Description);
+            }
     
-    // Nếu có lỗi, trả về trang chủ và báo để mở lại Register Modal xem lỗi
-    TempData["OpenRegisterModal"] = true;
-    return RedirectToAction("Index", "Home");
-}
+            // Nếu có lỗi, trả về trang chủ và báo để mở lại Register Modal xem lỗi
+            TempData["OpenRegisterModal"] = true;
+            return RedirectToAction("Index", "Home");
+        }
         // Đăng nhập
         [HttpGet]
         public IActionResult Login() => View();
@@ -103,9 +160,9 @@ public async Task<IActionResult> Register(RegisterViewModel model)
                     }
                 }
 
-                ModelState.AddModelError("", "Sai Email hoặc mật khẩu");
+                ModelState.AddModelError("","Sai Email hoặc mật khẩu. Vui lòng thử lại!");
             }
-            return View(model);
+            return View("Auth",model);
         }
         [Authorize]
         public async Task<IActionResult> Profile()

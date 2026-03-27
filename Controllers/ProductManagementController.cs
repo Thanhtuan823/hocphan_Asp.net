@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
-namespace lab2.Controllers.Management
+namespace lab2.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class ProductManagementController : Controller
     {
         private readonly AppDbContext _context;

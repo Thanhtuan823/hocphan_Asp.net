@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore; // Quan trọng: Phải có dòng này để dùng .Include()
 
-namespace lab2.Controllers.Management
+namespace lab2.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class CategoryManagementController : Controller
     {
         private readonly AppDbContext _context;

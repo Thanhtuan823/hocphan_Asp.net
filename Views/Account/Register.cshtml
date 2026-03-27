@@ -31,14 +31,13 @@
             </div>
 
             <div class="form-group mb-3">
-                <label asp-for="Password" class="fw-semibold mb-1 text-secondary ms-2">Mật khẩu</label>
-                <div class="input-group shadow-sm-custom">
-                    <span class="input-group-text bg-light border-0 rounded-pill-start text-success px-3">
-                        <i class="bi bi-lock"></i>
-                    </span>
-                    <input asp-for="Password" type="password" class="form-control bg-light border-0 rounded-pill-end px-3 py-2" placeholder="1234..." />
+                <label class="fw-semibold small">Mật khẩu *</label>
+                <div class="password-wrapper">
+                    <input name="Password" type="password" id="passwordInput"
+                           class="form-control rounded-pill bg-light border-0"
+                           placeholder="vd: 123..." required />
+                    <i class="bi bi-eye-slash" id="togglePasswordIcon" onclick="togglePasswordVisibility()"></i>
                 </div>
-                <span asp-validation-for="Password" class="text-danger small ms-2"></span>
             </div>
 
             <div class="form-group mb-4">
@@ -65,7 +64,24 @@
         </div>
     </div>
 </div>
+<script>
+    function togglePasswordVisibility() {
+        var passwordInput = document.getElementById("passwordInput");
+        var icon = document.getElementById("togglePasswordIcon");
 
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            // Đổi icon sang mắt mở
+            icon.classList.remove("bi-eye-slash");
+            icon.classList.add("bi-eye");
+        } else {
+            passwordInput.type = "password";
+            // Đổi icon sang mắt gạch chéo
+            icon.classList.remove("bi-eye");
+            icon.classList.add("bi-eye-slash");
+        }
+    }
+</script>
 <style>
     .uppercase-tracking {
         letter-spacing: 1px;

@@ -3,6 +3,8 @@ using lab2.Models;
 using lab2.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.UI.Services; //email sender interface
+using lab2.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +19,9 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     options.SupportedCultures = supportedCultures;
     options.SupportedUICultures = supportedCultures;
 });
+
+// Đăng ký EmailSender (Sử dụng MailKit để gửi email qua Gmail SMTP)
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 
 // Cho phép UserName chứa khoảng trắng và các ký tự đặc biệt để làm "Tên hiển thị"

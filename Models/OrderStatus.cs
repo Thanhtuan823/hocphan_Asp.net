@@ -10,7 +10,7 @@ namespace lab2.Models
         [Display(Name = "Đang giao hàng")]
         Shipping,
 
-        [Display(Name = "Giao hàng thành công")]
+        [Display(Name = "Đã giao hàng")]
         Success,
 
         [Display(Name = "Xác nhận hủy")]

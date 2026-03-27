@@ -8,14 +8,12 @@
 <div class="container py-5">
     @if (cartItems == null || !cartItems.Any())
     {
-        @* --- GIAO DIỆN KHI CHƯA CÓ SẢN PHẨM --- *@
         <div class="text-center py-5 animate-fade">
             <div class="mb-4">
                 <img src="https://cdn-icons-png.flaticon.com/512/11329/11329061.png" width="180" class="opacity-75" alt="Empty Cart" />
             </div>
             <h2 class="fw-bold text-dark">Giỏ hàng của bạn đang trống!</h2>
-            <p class="text-muted fs-5 mb-4">Hiện tại chưa có đơn hàng nào chờ thanh toán.<br>Vui lòng mời bạn đi mua sắm tiếp để chọn được những sản phẩm ưng ý.</p>
-
+            <p class="text-muted fs-5 mb-4">Vui lòng đi mua sắm tiếp để chọn được những sản phẩm ưng ý.</p>
             <a asp-controller="Product" asp-action="Index" class="btn btn-success btn-lg rounded-pill px-5 fw-bold shadow-sm transition-btn">
                 <i class="bi bi-bag-plus me-2"></i> ĐI MUA SẮM NGAY
             </a>
@@ -23,29 +21,21 @@
     }
     else
     {
-        @* --- GIAO DIỆN FORM THANH TOÁN KHI ĐÃ CÓ HÀNG --- *@
         <div class="text-center mb-5 animate-fade">
             <h2 class="fw-bold text-success">🚚 XÁC NHẬN ĐẶT HÀNG</h2>
-            <p class="text-muted">Vui lòng kiểm tra kỹ thông tin trước khi hoàn tất đơn hàng</p>
+            <p class="text-muted">Kiểm tra kỹ thông tin và áp dụng mã giảm giá (nếu có)</p>
         </div>
-
-        @if (!ViewData.ModelState.IsValid && ViewData.ModelState[""]?.Errors.Count > 0)
-        {
-            <div class="alert alert-danger border-0 shadow-sm rounded-4 mb-4 animate-fade">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                @foreach (var error in ViewData.ModelState[""].Errors)
-                {
-                    <span>@error.ErrorMessage</span>
-                }
-            </div>
-        }
 
         <form asp-controller="Order" asp-action="Checkout" method="post" class="row g-4">
             @Html.AntiForgeryToken()
+            
+            @* --- QUAN TRỌNG: Input ẩn để gửi mã giảm giá về Controller --- *@
+            <input type="hidden" name="discountCode" id="hiddenDiscountCode" value="" />
 
+            @* --- CỘT TRÁI: THÔNG TIN NGƯỜI NHẬN --- *@
             <div class="col-lg-7">
-                <div class="card border-0 shadow-sm rounded-4 p-4">
-                    <h5 class="fw-bold mb-4"><i class="bi bi-geo-alt text-success me-2"></i>Thông tin người nhận</h5>
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                    <h5 class="fw-bold mb-4 text-dark"><i class="bi bi-geo-alt text-success me-2"></i>Thông tin giao hàng</h5>
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold small text-muted">HỌ VÀ TÊN</label>
@@ -55,80 +45,112 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-semibold small text-muted">ĐỊA CHỈ (Số nhà, tên đường)</label>
-                            <input asp-for="Address1" class="form-control rounded-3 border-2 shadow-none focus-green" placeholder="VD: 123 Lê Lợi..." />
+                            <label class="form-label fw-semibold small text-muted">ĐỊA CHỈ</label>
+                            <input asp-for="Address1" class="form-control rounded-3 border-2 shadow-none focus-green" placeholder="Số nhà, tên đường..." />
                             <span asp-validation-for="Address1" class="text-danger small"></span>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-semibold small text-muted">GHI CHÚ (Số tầng, phòng...)</label>
-                            <input asp-for="Address2" class="form-control rounded-3 border-2 shadow-none focus-green" placeholder="Không bắt buộc..." />
+                            <label class="form-label fw-semibold small text-muted">GHI CHÚ</label>
+                            <input asp-for="Address2" class="form-control rounded-3 border-2 shadow-none focus-green" placeholder="Tòa nhà, số tầng..." />
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-semibold small text-muted">THÀNH PHỐ</label>
-                            <input asp-for="City" class="form-control rounded-3 border-2 shadow-none focus-green" placeholder="TP. Hồ Chí Minh..." />
+                            <input asp-for="City" class="form-control rounded-3 border-2 shadow-none focus-green" />
                             <span asp-validation-for="City" class="text-danger small"></span>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-semibold small text-muted">MÃ ZIP / MÃ VÙNG</label>
-                            <input asp-for="Zip" class="form-control rounded-3 border-2 shadow-none focus-green" placeholder="700000..." />
-                            <span asp-validation-for="Zip" class="text-danger small"></span>
+                            <label class="form-label fw-semibold small text-muted">MÃ ZIP</label>
+                            <input asp-for="Zip" class="form-control rounded-3 border-2 shadow-none focus-green" />
                         </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold small text-muted">SỐ ĐIỆN THOẠI</label>
-                        <input asp-for="PhoneNumber" class="form-control rounded-3 border-2 shadow-none focus-green" placeholder="090..." />
+                        <input asp-for="PhoneNumber" class="form-control rounded-3 border-2 shadow-none focus-green" placeholder="Số điện thoại nhận hàng..." />
                         <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
                     </div>
                 </div>
             </div>
 
+            @* --- CỘT PHẢI: TÓM TẮT ĐƠN HÀNG --- *@
             <div class="col-lg-5">
                 <div class="card border-0 shadow-lg rounded-4 overflow-hidden animate-slide-right">
                     <div class="card-header bg-success text-white py-3 border-0 text-center">
                         <h5 class="mb-0 fw-bold">TÓM TẮT ĐƠN HÀNG</h5>
                     </div>
+                    
                     <div class="card-body p-0">
+                        @* --- PHẦN NHẬP MÃ GIẢM GIÁ --- *@
+                        <div class="p-4 bg-light border-bottom">
+                            <label class="form-label fw-semibold small text-muted text-uppercase">Mã ưu đãi</label>
+                            <div class="input-group">
+                                <input type="text" id="discountCodeDisplay" class="form-control shadow-none border-2 focus-green" placeholder="Nhập mã tại đây...">
+                                <button class="btn btn-success px-3 fw-bold shadow-sm" type="button" onclick="applyDiscount()">ÁP DỤNG</button>
+                            </div>
+                            <div id="discountMessage" class="small mt-1"></div>
+                        </div>
+
                         <div class="table-responsive">
                             <table class="table table-borderless align-middle mb-0">
                                 <thead class="bg-light">
-                                    <tr class="small text-muted text-uppercase">
+                                    <tr class="small text-muted text-uppercase border-bottom">
                                         <th class="ps-4">Sản phẩm</th>
                                         <th class="text-center">SL</th>
                                         <th class="text-end pe-4">Thành tiền</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @{
-                                        decimal totalOrder = 0;
-                                    }
+                                    @{ decimal subTotal = 0; }
                                     @foreach (var item in cartItems)
                                     {
-                                        var subtotal = item.Price * item.Quantity;
-                                        totalOrder += subtotal;
+                                        var itemTotal = item.Price * item.Quantity;
+                                        subTotal += itemTotal;
                                         <tr class="border-bottom">
                                             <td class="ps-4 py-3">
                                                 <div class="fw-bold text-dark small">@item.ProductName</div>
                                                 <div class="x-small text-muted">@item.Price.ToString("N0") đ</div>
                                             </td>
                                             <td class="text-center small text-muted">@item.Quantity</td>
-                                            <td class="text-end pe-4 fw-bold text-success small">@subtotal.ToString("N0") đ</td>
+                                            <td class="text-end pe-4 fw-bold text-success small">@itemTotal.ToString("N0") đ</td>
                                         </tr>
                                     }
+
+                                    <tr class="text-muted">
+                                        <td colspan="2" class="ps-4 pt-4 small fw-bold">Tạm tính (chưa thuế):</td>
+                                        <td class="text-end pe-4 pt-4 small fw-bold text-dark">@subTotal.ToString("N0") đ</td>
+                                    </tr>
+
+                                    @{
+                                        decimal vatAmount = subTotal * 0.1m;
+                                        decimal grandTotalWithVat = subTotal + vatAmount;
+                                    }
+                                    <tr class="text-muted border-bottom">
+                                        <td colspan="2" class="ps-4 pb-3 small fw-bold">Thuế VAT (10%):</td>
+                                        <td class="text-end pe-4 pb-3 small fw-bold text-primary">@vatAmount.ToString("N0") đ</td>
+                                    </tr>
+                                    
+                                    <tr id="discountRow" style="display:none;" class="bg-danger bg-opacity-10 border-bottom">
+                                        <td colspan="2" class="ps-4 py-3 small fw-bold text-danger">Giảm giá (Ưu đãi 20%):</td>
+                                        <td class="text-end pe-4 py-3 small fw-bold text-danger" id="discountAmount">-0 đ</td>
+                                    </tr>
+
                                     <tr class="bg-light shadow-sm">
-                                        <td colspan="2" class="ps-4 py-3 fw-bold fs-5">TỔNG CỘNG:</td>
-                                        <td class="text-end pe-4 py-3 fw-bold fs-5 text-danger">@totalOrder.ToString("N0") đ</td>
+                                        <td colspan="2" class="ps-4 py-4 fw-bold fs-5 text-dark">TỔNG CỘNG:</td>
+                                        <td class="text-end pe-4 py-4 fw-bold fs-5 text-danger" id="grandTotal" data-base="@grandTotalWithVat">
+                                            @grandTotalWithVat.ToString("N0") đ
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
+
                     <div class="card-footer bg-white p-4 border-0">
                         <button type="submit" class="btn btn-success w-100 py-3 rounded-pill fw-bold shadow transition-btn">
-                            HOÀN TẤT THANH TOÁN <i class="bi bi-shield-check ms-2"></i>
+                            HOÀN TẤT ĐẶT HÀNG <i class="bi bi-shield-check ms-2"></i>
                         </button>
                         <a asp-controller="Cart" asp-action="Index" class="btn btn-link w-100 text-muted text-decoration-none mt-2 small">
                             <i class="bi bi-chevron-left"></i> Quay lại giỏ hàng
@@ -142,53 +164,52 @@
 
 @section Styles {
     <style>
-        body {
-            background-color: #f8fafc;
-        }
-
-        .animate-fade {
-            animation: fadeIn 0.6s ease-out;
-        }
-
-        .animate-slide-right {
-            animation: slideInRight 0.6s ease-out;
-        }
-
-        @@keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        @@keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .focus-green:focus {
-            border-color: #198754 !important;
-            box-shadow: 0 0 0 0.25rem rgba(25,135,84, 0.1) !important;
-        }
-
-        .transition-btn:hover {
-            transform: translateY(-2px);
-            filter: brightness(1.1);
-            box-shadow: 0 5px 15px rgba(25,135,84, 0.3) !important;
-        }
-
-        .x-small {
-            font-size: 0.75rem;
-        }
+        body { background-color: #f8fafc; }
+        .animate-fade { animation: fadeIn 0.6s ease-out; }
+        .animate-slide-right { animation: slideInRight 0.6s ease-out; }
+        @@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @@keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+        .focus-green:focus { border-color: #198754 !important; box-shadow: 0 0 0 0.25rem rgba(25,135,84, 0.1) !important; }
+        .transition-btn:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 5px 15px rgba(25,135,84, 0.3) !important; }
+        .x-small { font-size: 0.75rem; }
     </style>
+}
+
+@section Scripts {
+    <script>
+        function applyDiscount() {
+            const codeInput = document.getElementById("discountCodeDisplay");
+            const hiddenInput = document.getElementById("hiddenDiscountCode");
+            const message = document.getElementById("discountMessage");
+            const grandTotalElement = document.getElementById("grandTotal");
+            const discountRow = document.getElementById("discountRow");
+            const discountAmountElement = document.getElementById("discountAmount");
+
+            const baseTotal = parseFloat(grandTotalElement.getAttribute("data-base"));
+            const code = codeInput.value.trim().toLowerCase();
+
+            if (code === "khachhangtiemnang") {
+                const discount = baseTotal * 0.2; 
+                const finalTotal = baseTotal - discount;
+
+                // 1. Gán giá trị vào input ẩn để gửi về Controller
+                hiddenInput.value = codeInput.value.trim();
+
+                // 2. Hiển thị ra giao diện
+                discountRow.style.display = "table-row";
+                discountAmountElement.innerText = "-" + discount.toLocaleString('vi-VN') + " đ";
+                grandTotalElement.innerText = finalTotal.toLocaleString('vi-VN') + " đ";
+                
+                message.innerText = "✅ Đã áp dụng mã giảm giá 20%!";
+                message.className = "text-success small mt-1 fw-bold animate-fade";
+            } else {
+                // Reset
+                hiddenInput.value = "";
+                discountRow.style.display = "none";
+                grandTotalElement.innerText = baseTotal.toLocaleString('vi-VN') + " đ";
+                message.innerText = "❌ Mã không hợp lệ.";
+                message.className = "text-danger small mt-1 animate-fade";
+            }
+        }
+    </script>
 }

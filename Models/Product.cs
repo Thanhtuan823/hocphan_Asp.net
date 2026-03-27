@@ -23,6 +23,8 @@ namespace lab2.Models
         [Range(0, int.MaxValue, ErrorMessage = "Số lượng phải >= 0")]
         public int Quantity { get; set; } // yêu cầu, >= 0
 
+        public int SoldQuantity { get; set; } = 0; // số lượng đã bán, mặc định 0
+
         [Required(ErrorMessage = "Vui lòng thêm hình ảnh sản phẩm")]
         public string ImageUrl { get; set; } // yêu cầu
 

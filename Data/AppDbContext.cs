@@ -16,6 +16,7 @@ namespace lab2.Data
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<Cart> Carts { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
+        // Khai báo để EF Core biết bảng này tồn tại trong Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

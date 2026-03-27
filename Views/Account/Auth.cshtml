@@ -3,56 +3,6 @@
     ViewData["Title"] = "Đăng nhập / Đăng ký";
 }
 
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 85vh;">
-    <div class="row shadow-lg w-100 w-md-75 overflow-hidden position-relative" style="border-radius: 20px;">
-
-        <a asp-controller="Home" asp-action="Index" class="btn-close-auth shadow-sm" title="Thoát">
-            <i class="bi bi-x-lg"></i>
-        </a>
-
-        <div class="col-md-6 bg-success text-white d-flex flex-column justify-content-center p-5 text-center">
-            <h3 class="fw-bold mb-3">CHƯA CÓ TÀI KHOẢN?</h3>
-            <p class="mb-4">Đăng ký ngay để nhận ưu đãi và quản lý những chậu cây xinh xắn của riêng bạn!</p>
-            <a asp-action="Register" class="btn btn-outline-light rounded-pill fw-bold px-4 py-2 hover-lift">
-                ĐĂNG KÝ TÀI KHOẢN MỚI
-            </a>
-        </div>
-
-        <div class="col-md-6 bg-white d-flex flex-column justify-content-center p-5">
-            <div class="text-center mb-4">
-                <h3 class="text-success fw-bold">ĐĂNG NHẬP</h3>
-                <p class="text-muted small">Vui lòng nhập thông tin tài khoản của bạn</p>
-            </div>
-
-            <form asp-action="Login" method="post">
-                <div asp-validation-summary="All" class="text-danger small mb-3"></div>
-
-                <div class="form-group mb-3">
-                    <label class="fw-semibold mb-1 text-secondary small">Email  *</label>
-                    <input name="Email" class="form-control rounded-pill px-3 border-light bg-light" placeholder="example@gmail.com" required />
-                </div>
-
-                <div class="form-group mb-3">
-                    <label class="fw-semibold mb-1 text-secondary small">Mật khẩu *</label>
-                    <input name="Password" type="password" class="form-control rounded-pill px-3 border-light bg-light" placeholder="1234.." required />
-                </div>
-
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="rememberMe" />
-                        <label class="form-check-label small text-muted" for="rememberMe">Ghi nhớ</label>
-                    </div>
-                    <a href="#" class="text-decoration-none small text-success fw-bold">Quên mật khẩu?</a>
-                </div>
-
-                <button type="submit" class="btn btn-success w-100 fw-bold rounded-pill py-2 shadow-sm btn-login-hover">
-                    ĐĂNG NHẬP NGAY
-                </button>
-            </form>
-        </div>
-    </div>
-</div>
-
 <style>
     /* Fix nút X: Chuyển sang màu xanh Success để nổi bật trên nền trắng */
     .btn-close-auth {
@@ -94,4 +44,154 @@
         filter: brightness(1.1);
         transform: translateY(-1px);
     }
+
+    #loginForm, #forgotForm {
+        transition: all 0.3s ease-in-out;
+    }
+
+    .password-wrapper {
+        position: relative;
+    }
+
+        .password-wrapper i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #6c757d;
+            z-index: 10;
+        }
 </style>
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 85vh;">
+    <div class="row shadow-lg w-100 w-md-75 overflow-hidden position-relative" style="border-radius: 20px;">
+
+        <a asp-controller="Home" asp-action="Index" class="btn-close-auth shadow-sm" title="Thoát">
+            <i class="bi bi-x-lg"></i>
+        </a>
+
+        <div class="col-md-6 bg-success text-white d-flex flex-column justify-content-center p-5 text-center">
+            <h3 class="fw-bold mb-3">CHƯA CÓ TÀI KHOẢN?</h3>
+            <p class="mb-4">Đăng ký ngay để nhận ưu đãi và quản lý những chậu cây xinh xắn của riêng bạn!</p>
+            <a asp-action="Register" class="btn btn-outline-light rounded-pill fw-bold px-4 py-2 hover-lift">
+                ĐĂNG KÝ TÀI KHOẢN MỚI
+            </a>
+        </div>
+
+        <div class="col-md-6 bg-white d-flex flex-column justify-content-center p-5 position-relative">
+            <div id="loginForm">
+                @if (TempData["SuccessMsg"] != null)
+                {
+                    <div class="alert alert-success py-2 small text-center border-0 mb-3">
+                        <i class="bi bi-check-circle-fill"></i> @TempData["SuccessMsg"]
+                    </div>
+                }
+                <div class="text-center mb-4">
+                    <h3 class="text-success fw-bold">ĐĂNG NHẬP</h3>
+                    <p class="text-muted small">Vui lòng nhập thông tin tài khoản</p>
+                </div>
+
+                <form asp-action="Login" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger small text-center mb-3 fw-bold"></div>
+                    <div class="form-group mb-3">
+                        <label class="fw-semibold small">Email *</label>
+                        <input name="Email" class="form-control rounded-pill bg-light border-0" 
+                        placeholder="example@gmail.com" required />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="fw-semibold small">Mật khẩu *</label>
+                        <div class="password-wrapper">
+                            <input name="Password" type="password" id="passwordInput"
+                                   class="form-control rounded-pill bg-light border-0"
+                                   placeholder="vd: 123..." required />
+                            <i class="bi bi-eye-slash" id="togglePasswordIcon" onclick="togglePasswordVisibility()"></i>
+                        </div>
+                    </div>
+
+                    <div class="text-end mb-4">
+                        <a href="javascript:void(0)" onclick="toggleForgotForm()" class="text-decoration-none small text-success fw-bold">
+                            Quên mật khẩu?
+                        </a>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100 fw-bold rounded-pill py-2 shadow-sm">ĐĂNG NHẬP</button>
+                </form>
+            </div>
+
+            <div id="forgotForm" style="display: none;">
+                <div class="text-center mb-4">
+                    <h3 class="text-success fw-bold">KHÔI PHỤC</h3>
+                    <p class="text-muted small">Nhập Gmail để lấy mật khẩu mới</p>
+                </div>
+
+                <form asp-action="ForgotPassword" method="post">
+                    <div class="form-group mb-3">
+                        <input type="email" name="email"
+                               class="form-control rounded-pill bg-light border-0"
+                               placeholder="Nhập Gmail của bạn..."
+                               required
+                               pattern="[a-z0-9._%+-]+@@gmail\.com$"
+                               oninvalid="this.setCustomValidity('Vui lòng nhập đúng định dạng Gmail (ví dụ: abc@gmail.com)')"
+                               oninput="this.setCustomValidity('')" />
+                    </div>
+
+                    @if (TempData["ErrorMsg"] != null)
+                    {
+                        <div class="alert alert-danger py-1 small text-center border-0">@TempData["ErrorMsg"]</div>
+                    }
+                    <button type="submit" class="btn btn-success w-100 fw-bold rounded-pill py-2 mb-3 shadow-sm">
+                        GỬI MẬT KHẨU MỚI</button>
+
+                    <div class="text-center">
+                        <a href="javascript:void(0)" onclick="toggleForgotForm()" class="text-muted small text-decoration-none">
+                            <i class="bi bi-arrow-left"></i> Quay lại Đăng nhập
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function toggleForgotForm() {
+        var login = document.getElementById("loginForm");
+        var forgot = document.getElementById("forgotForm");
+
+        if (forgot.style.display === "none") {
+            login.style.display = "none";
+            forgot.style.display = "block";
+        } else {
+            login.style.display = "block";
+            forgot.style.display = "none";
+        }
+    }
+
+    window.onload = function() {
+        var hasError = "@(TempData["ErrorMsg"] != null ? "true" : "false")";
+        var hasSuccess = "@(TempData["SuccessMsg"] != null ? "true" : "false")";
+
+        // Nếu có lỗi (nhập sai gmail/gmail không tồn tại) -> Hiện lại form Khôi phục
+        if (hasError === "true") {
+            toggleForgotForm();
+        }
+        // Nếu thành công -> Mặc định hiện form Login (nên không cần gọi toggle)
+    };
+        function togglePasswordVisibility() {
+        var passwordInput = document.getElementById("passwordInput");
+        var icon = document.getElementById("togglePasswordIcon");
+
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            // Đổi icon sang mắt mở
+            icon.classList.remove("bi-eye-slash");
+            icon.classList.add("bi-eye");
+        } else {
+            passwordInput.type = "password";
+            // Đổi icon sang mắt gạch chéo
+            icon.classList.remove("bi-eye");
+            icon.classList.add("bi-eye-slash");
+        }
+    }
+</script>

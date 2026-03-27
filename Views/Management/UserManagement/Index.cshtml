@@ -4,31 +4,147 @@
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<div class="container mt-4">
-    <h2 class="text-success fw-bold mb-3">👤 Quản lý tài khoản người dùng</h2>
-    <p class="text-muted">Danh sách người dùng trong hệ thống.</p>
+<div class="container py-5">
+    @* --- HEADER --- *@
+    <div class="row align-items-center mb-4 animate__animated animate__fadeIn">
+        <div class="col-md-6 d-flex align-items-center">
+            <div class="bg-success text-white p-3 rounded-circle me-3 shadow-sm">
+                <i class="bi bi-people-fill fs-4"></i>
+            </div>
+            <div>
+                <h2 class="fw-bold text-success mb-0">QUẢN LÝ TÀI KHOẢN</h2>
+                <p class="text-muted mb-0 small">Danh sách người dùng và phân quyền</p>
+            </div>
+        </div>
+        <div class="col-md-6 text-md-end mt-3 mt-md-0">
+            <button class="btn btn-success rounded-pill px-4 shadow-sm fw-bold">
+                <i class="bi bi-person-plus-fill me-2"></i> THÊM MỚI
+            </button>
+        </div>
+    </div>
 
-    <table class="table table-bordered table-hover shadow-sm">
-        <thead class="table-success">
-            <tr>
-                <th>Tên đăng nhập</th>
-                <th>Email</th>
-                <th>Vai trò</th>
-                <th>Thao tác</th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach (var user in Model)
-        {
-            <tr>
-                <td>@user.UserName</td>
-                <td>@user.Email</td>
-                <td>@string.Join(", ", user.Roles)</td>
-                <td>
-                    <a asp-action="Delete" asp-route-id="@user.Id" class="btn btn-outline-danger btn-sm">Xóa</a>
-                </td>
-            </tr>
-        }
-        </tbody>
-    </table>
+    @* --- TABLE CARD --- *@
+    <div class="card shadow-sm rounded-4 border-0 overflow-hidden">
+        <div class="table-responsive" style="overflow-x: hidden;">
+            @* Chốt chặn cuối cùng để ẩn scroll ngang *@
+            <table class="table table-hover align-middle mb-0 custom-table">
+                <thead class="bg-light border-bottom">
+                    <tr class="text-muted small text-uppercase fw-bold">
+                        <th class="ps-4 py-3 border-0" style="width: 30%;">Người dùng</th>
+                        <th class="py-3 border-0" style="width: 30%;">Email</th>
+                        <th class="py-3 border-0" style="width: 25%;">Vai trò</th>
+                        <th class="text-end pe-4 py-3 border-0" style="width: 15%;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr class="user-row border-bottom">
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle me-3 flex-shrink-0">
+                                        @(user.UserName?.Substring(0, 1).ToUpper() ?? "U")
+                                    </div>
+                                    <div class="text-truncate">
+                                        <div class="fw-bold text-dark text-truncate">@user.UserName</div>
+                                        <div class="text-muted small text-truncate" style="max-width: 150px;">ID: @user.Id</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-muted text-truncate"><i class="bi bi-envelope me-1"></i> @user.Email</div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-1">
+                                    @foreach (var role in user.Roles)
+                                    {
+                                        <span class="badge @(role == "Admin" ? "bg-danger" : "bg-info text-dark") rounded-pill px-2 py-1">
+                                            @role
+                                        </span>
+                                    }
+                                </div>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a asp-action="Edit" asp-route-id="@user.Id" class="btn-action edit" title="Sửa">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@user.Id" method="post" class="d-inline" onsubmit="return confirm('Xóa tài khoản này?')">
+                                        <button type="submit" class="btn-action delete" title="Xóa">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
+@section Styles {
+    <style>
+        /* Khóa bảng không cho tự giãn rộng quá mức */
+        .custom-table {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        /* Avatar */
+        .avatar-circle {
+            width: 38px;
+            height: 38px;
+            background-color: #e8f5e9;
+            color: #198754;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: bold;
+        }
+
+        /* Tự động cắt chữ nếu quá dài thay vì đẩy bảng rộng ra */
+        .text-truncate {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Nút thao tác tối giản */
+        .btn-action {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background-color: #f8f9fa;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+            .btn-action.edit {
+                color: #0d6efd;
+            }
+
+            .btn-action.delete {
+                color: #dc3545;
+            }
+
+            .btn-action:hover {
+                background-color: #eee;
+                transform: translateY(-2px);
+            }
+
+        .user-row:hover {
+            background-color: #f8fffb !important;
+        }
+
+        .badge {
+            font-size: 0.7rem;
+        }
+    </style>
+}
