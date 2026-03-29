@@ -4,7 +4,7 @@
 
 @* --- HERO BANNER --- *@
 <div class="container-fluid p-0 mb-5 overflow-hidden">
-    <div class="position-relative text-center bg-dark text-white py-5 d-flex align-items-center justify-content-center hero-banner">
+    <div class="position-relative text-center text-white py-5 d-flex align-items-center justify-content-center hero-banner">
         <div class="position-absolute top-0 start-0 w-100 h-100 overlay"></div>
         <div class="position-relative animate__animated animate__fadeInUp">
             <span class="badge rounded-pill bg-success px-3 py-2 mb-3 shadow">CAM KẾT XANH 100%</span>
@@ -53,6 +53,7 @@
         </div>
 
         @* --- MAIN GRID: SẢN PHẨM (CỘT PHẢI) --- *@
+    
         <div class="col-lg-9 col-md-8">
             <div class="d-flex justify-content-between align-items-center mb-4 animate__animated animate__fadeIn">
                 <h3 class="fw-bold text-dark m-0">Toàn bộ sưu tập</h3>
@@ -61,40 +62,53 @@
                 </span>
             </div>
 
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="mainGrid">
+            <div class="row g-4 mb-5 pb-4 border-bottom" id="mainGrid">
                 @foreach (var item in Model)
                 {
-                    <div class="col product-item animate__animated animate__fadeInUp"
+                    bool isOutOfStock = item.Quantity <= 0;
+
+                    <div class="col-md-6 col-lg-4 product-item animate__animated animate__fadeInUp"
+                         data-name="@item.ProductName.ToLower()"
                          data-price="@item.Price"
-                         data-name="@item.ProductName.ToLower()">
+                         id="product-wrapper-@item.ProductId">
 
-                        <div class="card h-100 shadow-sm transition-card border-0 @(item.Quantity <= 0 ? "opacity-75" : "")" style="border-radius: 15px; overflow: hidden;">
-                            <div class="position-relative overflow-hidden product-img-container">
-                                <img src="@item.ImageUrl" class="card-img-top" alt="@item.ProductName"
-                                     style="height:250px; object-fit:cover; transition: transform 0.5s ease; @(item.Quantity <= 0 ? "filter: grayscale(80%);" : "")" />
-
-                                <div class="card-overlay d-flex align-items-center justify-content-center">
-                                    <a href="@Url.Action("Details", "Product", new { id = item.ProductId })"
-                                       class="btn btn-light rounded-circle shadow-sm mx-1 p-2">
-                                        <i class="bi bi-eye text-success fs-5"></i>
-                                    </a>
-                                </div>
+                        <div class="card product-card h-100 shadow-sm @(isOutOfStock ? "out-of-stock" : "")">
+                            <div class="img-container"
+                                 onclick="window.location.href='@Url.Action("Details", "Product", new { id = item.ProductId })'">
+                                @if (isOutOfStock)
+                                {
+                                    <div class="out-of-stock-overlay">TẠM HẾT HÀNG</div>
+                                }
+                                <img src="@item.ImageUrl" alt="@item.ProductName" loading="lazy">
                             </div>
 
-                            <div class="card-body d-flex flex-column p-4">
-                                <h6 class="card-title text-dark fw-bold mb-2">@item.ProductName</h6>
-                                <p class="text-success fw-bold mb-3 fs-5 price-display">@item.Price.ToString("N0") đ</p>
+                            <div class="card-body p-4 d-flex flex-column">
+                                <span class="text-muted small text-uppercase mb-1 d-block" style="font-size: 0.75rem; letter-spacing: 1px;">
+                                    @item.Category?.CategoryName
+                                </span>
+                                <h5 class="card-title fw-bold text-dark mb-3 product-title">@item.ProductName</h5>
+
+                                <div class="product-stats d-flex justify-content-between align-items-center text-muted">
+                                    <span><i class="bi bi-box-seam text-success"></i> Kho: <strong id="stock-@item.ProductId">@item.Quantity</strong></span>
+                                    <span><i class="bi bi-cart-check text-warning"></i> Đã bán: <strong>@(item.SoldQuantity)</strong></span>
+                                </div>
+
                                 <div class="mt-auto">
-                                    @if (item.Quantity > 0)
-                                    {
-                                        <button class="btn btn-outline-success w-100 rounded-pill btn-sm fw-bold py-2 shadow-none btn-cart" onclick="addToCart(@item.ProductId)">
-                                            <i class="bi bi-cart-plus me-1"></i> Thêm vào giỏ
+                                    <p class="product-price fw-bold mb-3">@item.Price.ToString("N0") <span class="text-decoration-underline small fs-6">đ</span></p>
+
+                                    <div class="d-flex gap-2">
+                                        <a asp-controller="Product" asp-action="Details" asp-route-id="@item.ProductId"
+                                           class="btn btn-outline-success rounded-pill flex-grow-1 fw-bold">
+                                            Chi tiết
+                                        </a>
+                                        <button id="btn-cart-@item.ProductId"
+                                                class="btn btn-cart-icon rounded-circle shadow-sm"
+                                                onclick="addToCart(@item.ProductId)"
+                                                title="Thêm vào giỏ"
+                                                @(isOutOfStock ? "disabled" : "")>
+                                            <i class="bi bi-cart-plus fs-5"></i>
                                         </button>
-                                    }
-                                    else
-                                    {
-                                        <button class="btn btn-secondary w-100 rounded-pill btn-sm disabled py-2">Hết hàng</button>
-                                    }
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -112,73 +126,209 @@
 </div>
 
 <style>
+    :root {
+        --primary-green: #2e7d32;
+        --light-green: #e8f5e9;
+        --dark-green: #1b5e20;
+        --accent-orange: #ff9800;
+    }
+    /* --- HIỆU ỨNG TẠM HẾT HÀNG --- */
+    .out-of-stock .img-container img {
+        filter: grayscale(100%) opacity(0.5); /* Làm xám và mờ ảnh */
+    }
+
+    .out-of-stock .card-body {
+        opacity: 0.7; /* Làm mờ nội dung chữ */
+    }
+
+    .out-of-stock-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.75);
+        color: white;
+        padding: 8px 15px;
+        font-weight: bold;
+        font-size: 0.85rem;
+        border-radius: 4px;
+        z-index: 10;
+        white-space: nowrap;
+        letter-spacing: 1px;
+        pointer-events: none;
+    }
+
+    /* Vô hiệu hóa hover khi hết hàng */
+    .product-card.out-of-stock:hover {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+    /* --- 1. Hero Banner --- */
     .hero-banner {
-        background: url('https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?q=80&w=2070') center/cover no-repeat !important;
+        
+        border-radius: 50px;
+        background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?q=80&w=2070') center/cover no-repeat !important;
         min-height: 500px;
         background-attachment: fixed !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    .overlay {
-        background: rgba(0,0,0,0.4);
-    }
 
-    .transition-card {
+    /* --- 2. Thẻ Sản Phẩm (Product Card) - Đồng bộ hoàn toàn --- */
+    .product-card {
+        border: 1px solid #f0f0f0;
+        border-radius: 16px !important;
+        background: #fff;
         transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        height: 100%;
     }
 
-        .transition-card:hover {
+        .product-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+            box-shadow: 0 18px 35px rgba(0,0,0,0.06) !important;
+            border-color: #d1e7dd;
         }
 
-            .transition-card:hover .card-img-top {
-                transform: scale(1.1);
-            }
+    /* Container hình ảnh và hiệu ứng zoom */
+    .img-container {
+        overflow: hidden;
+        position: relative;
+        height: 320px; /* Tăng từ 260px lên 320px để cân đối với chiều rộng mới */
+        border-radius: 16px 16px 0 0;
+    }
 
+    .product-item {
+        display: flex;
+    }
+
+        .img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+    .product-card:hover .img-container img {
+        transform: scale(1.08);
+    }
+
+    /* Overlay xuất hiện khi hover vào card */
     .card-overlay {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0,0,0,0.2);
+        background: rgba(0,0,0,0.15);
         opacity: 0;
         transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
     }
 
-    .transition-card:hover .card-overlay {
+    .product-card:hover .card-overlay {
         opacity: 1;
     }
 
-    .hover-scale:hover {
-        transform: scale(1.05);
-        transition: 0.3s;
+    /* Badge phong cách mới */
+    .badge-hot {
+        background: linear-gradient(45deg, #ff416c, #ff4b2b);
+        padding: 6px 14px;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+        z-index: 3;
     }
 
-    /* Category Menu styling within green sidebar */
+
+    /* Tiêu đề và thông số */
+    .product-title {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+ 
+        font-size: 1.1rem;
+        line-height: 1.4;
+        color: #333;
+       /* Điều chỉnh khoảng cách dưới tên */
+    }
+
+    .product-stats {
+        padding: 0; /* Bỏ padding thừa */
+        margin-bottom: 12px;
+        font-size: 0.85rem;
+        border-top: none; /* ĐÃ XÓA ĐƯỜNG GẠCH Ở ĐÂY */
+        padding-top: 0; /* Bỏ padding top */
+    }
+
+    .product-price {
+        color: var(--primary-green);
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+    }
+
+    /* Nút bấm */
+    .btn-cart-icon {
+        background-color: var(--light-green);
+        color: var(--primary-green);
+        border: none;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+    }
+
+        .btn-cart-icon:hover {
+            background-color: var(--primary-green);
+            color: white;
+            transform: rotate(15deg);
+        }
+
+    /* --- 3. Sidebar & Utilities --- */
+    .sidebar-content {
+        border-radius: 20px;
+    }
+
     .category-sidebar-wrapper .category-item-link {
         background: transparent !important;
         color: rgba(255,255,255,0.85) !important;
         border: none !important;
         padding: 10px 0 !important;
         transition: 0.3s;
+        display: block;
+        text-decoration: none;
     }
 
         .category-sidebar-wrapper .category-item-link:hover {
             color: white !important;
             padding-left: 10px !important;
+            font-weight: bold;
         }
 
-    .btn-cart:hover {
-        background-color: #198754 !important;
-        color: white !important;
+    .hover-scale:hover {
+        transform: scale(1.05);
+        transition: 0.3s;
+    }
+
+    #searchInput:focus {
+        box-shadow: none;
+        background-color: #fff;
     }
 </style>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Hàm lọc và sắp xếp đồng thời
+        // 1. Hàm Lọc và Sắp xếp (Đồng bộ từ file mới)
         function filterAndSort() {
             const keyword = document.getElementById("searchInput").value.toLowerCase().trim();
             const sortVal = document.getElementById("sortOption").value;
@@ -186,18 +336,16 @@
             const items = Array.from(grid.getElementsByClassName("product-item"));
             let visibleCount = 0;
 
-            // 1. Lọc theo tên
             items.forEach(item => {
-                const name = item.getAttribute("data-name");
+                const name = item.getAttribute("data-name") || "";
                 if (name.includes(keyword)) {
-                    item.style.display = ""; // Dùng display thay vì d-none để dễ sort
+                    item.style.setProperty('display', 'flex', 'important');
                     visibleCount++;
                 } else {
-                    item.style.display = "none";
+                    item.style.setProperty('display', 'none', 'important');
                 }
             });
 
-            // 2. Sắp xếp các phần tử ĐÃ LỌC
             items.sort((a, b) => {
                 const priceA = parseFloat(a.getAttribute("data-price"));
                 const priceB = parseFloat(b.getAttribute("data-price"));
@@ -213,22 +361,15 @@
                 }
             });
 
-            // Gán lại HTML đã sắp xếp
             items.forEach(i => grid.appendChild(i));
 
-            // Cập nhật số lượng và thông báo
-            document.getElementById("result-count").innerText = `Tìm thấy ${visibleCount} sản phẩm`;
+            document.getElementById("result-count").innerText = `Hiển thị ${visibleCount} sản phẩm`;
             document.getElementById("no-results").classList.toggle("d-none", visibleCount > 0);
         }
 
-        function resetFilters() {
-            document.getElementById("searchInput").value = "";
-            document.getElementById("sortOption").value = "default";
-            filterAndSort();
-        }
-
+        // 2. Hàm Thêm vào giỏ & Cập nhật kho (Đồng bộ từ file cũ)
         function addToCart(productId) {
-            fetch('/Cart/AddToCart', {
+            fetch('@Url.Action("AddToCart", "Cart")', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `productId=${productId}&quantity=1`
@@ -236,14 +377,48 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
+                    // Cập nhật Badge giỏ hàng trên Header
+                    const cartBadge = document.getElementById("cart-count");
+                    if(cartBadge) {
+                        cartBadge.innerText = data.count;
+                        cartBadge.classList.add('animate__animated', 'animate__bounceIn');
+                        setTimeout(() => cartBadge.classList.remove('animate__animated', 'animate__bounceIn'), 1000);
+                    }
+
+                    // Cập nhật số lượng KHO ngay trên giao diện
+                    const stockElement = document.getElementById(`stock-${productId}`);
+                    if (stockElement) {
+                        let currentStock = parseInt(stockElement.innerText);
+                        if (currentStock > 0) {
+                            stockElement.innerText = currentStock - 1;
+                            stockElement.classList.add('animate__animated', 'animate__headShake', 'text-danger');
+                            setTimeout(() => stockElement.classList.remove('animate__animated', 'animate__headShake', 'text-danger'), 1000);
+                        }
+                    }
+
+                    // Thông báo thành công (Toast)
                     Swal.fire({
-                        icon: 'success', title: 'Đã thêm vào giỏ!', toast: true, position: 'top-end',
-                        showConfirmButton: false, timer: 1500, timerProgressBar: true
+                        icon: 'success',
+                        title: 'Đã thêm vào giỏ!',
+                        text: 'Mầm xanh đã được giữ chỗ cho bạn.',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true,
+                        background: '#e8f5e9',
+                        color: '#2e7d32',
+                        iconColor: '#2e7d32'
                     });
-                    const badge = document.getElementById("cart-count");
-                    if (badge) badge.textContent = data.count;
                 }
-            });
+            })
+            .catch(err => console.error("Lỗi thêm vào giỏ:", err));
+        }
+
+        function resetFilters() {
+            document.getElementById("searchInput").value = "";
+            document.getElementById("sortOption").value = "default";
+            filterAndSort();
         }
     </script>
 }

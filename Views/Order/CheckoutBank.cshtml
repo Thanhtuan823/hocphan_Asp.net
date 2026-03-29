@@ -1,0 +1,166 @@
+﻿@model lab2.Models.Order
+@{
+    ViewData["Title"] = "Thanh toán đơn hàng";
+    Layout = "~/Views/Shared/_LayoutUser.cshtml";
+
+    string transferContent = "THANHTOAN " + Model.OrderId;
+    string bankId = "MB";
+    string accountNo = "0123456789";
+    string accountName = "NGUYEN VAN A";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-header bg-success text-white border-0 py-3 text-center">
+                    <h5 class="fw-bold text-uppercase mb-0">Thanh toán chuyển khoản</h5>
+                    <small class="opacity-75">Đơn hàng #@Model.OrderId</small>
+                </div>
+
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <div class="qr-container p-2 d-inline-block border rounded-4 bg-white shadow-sm mb-2">
+                            <img src="https://img.vietqr.io/image/@(bankId)-@(accountNo)-compact.jpg?amount=@Model.TotalAmount&addInfo=@(transferContent)&accountName=@(accountName)"
+                                 alt="Mã QR" class="img-fluid" style="max-width: 220px;">
+                        </div>
+                        <p class="text-muted small mb-0"><i class="bi bi-qr-code-scan"></i> Quét mã để tự động nhập thông tin</p>
+                    </div>
+
+                    <div class="payment-info bg-light rounded-3 p-3 border border-light-subtle">
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-white">
+                            <span class="text-muted small">Số tiền cần trả:</span>
+                            <span class="fs-5 fw-bold text-danger">@Model.TotalAmount.ToString("N0") đ</span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="d-block small text-muted text-uppercase mb-1">Số tài khoản</label>
+                            <div class="d-flex align-items-center justify-content-between bg-white p-2 rounded border">
+                                <span class="fw-bold text-dark fs-6">@accountNo</span>
+                                <button class="btn btn-sm btn-link text-success p-0 text-decoration-none" onclick="copyText('@accountNo')">Sao chép</button>
+                            </div>
+                        </div>
+
+                        <div class="mb-1">
+                            <label class="d-block small text-muted text-uppercase mb-1">Nội dung chuyển khoản</label>
+                            <div class="d-flex align-items-center justify-content-between bg-white p-2 rounded border">
+                                <span class="fw-bold text-primary">@transferContent</span>
+                                <button class="btn btn-sm btn-link text-primary p-0 text-decoration-none" onclick="copyText('@transferContent')">Sao chép</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <div class="d-flex align-items-center justify-content-center text-muted small">
+                            <div class="spinner-grow spinner-grow-sm text-success me-2" role="status"></div>
+                            <span>Đang chờ xác nhận giao dịch...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer border-0 p-4 pt-0 bg-white">
+                    <div class="d-grid gap-2">
+                        <button type="button" onclick="manualConfirm()" class="btn btn-success py-2 fw-bold rounded-3 shadow-sm">
+                            TÔI ĐÃ CHUYỂN KHOẢN XONG
+                        </button>
+                        <button type="button" class="btn btn-link btn-sm text-muted text-decoration-none" onclick="window.history.back()">
+                            Quay lại đơn hàng
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        let timeLeft = 15; // Tăng lên 15 giây chạy ẩn
+        let isProcessing = false;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            startTimer();
+        });
+
+        function startTimer() {
+            const timerInterval = setInterval(() => {
+                if (isProcessing) {
+                    clearInterval(timerInterval);
+                    return;
+                }
+
+                timeLeft--;
+
+                // Logic vẫn chạy nhưng không cập nhật vào giao diện HTML
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishPayment("Hệ thống đã nhận được thông tin thanh toán!");
+                }
+            }, 1000);
+        }
+
+        function manualConfirm() {
+            if (isProcessing) return;
+            isProcessing = true;
+
+            Swal.fire({
+                title: 'Đang kiểm tra giao dịch...',
+                html: 'Hệ thống đang xác minh tài khoản của bạn',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                    setTimeout(() => {
+                        finishPayment("Giao dịch của bạn đã được xác nhận thành công!");
+                    }, 2500);
+                }
+            });
+        }
+
+        function finishPayment(message) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công!',
+                text: message,
+                confirmButtonColor: '#198754',
+                confirmButtonText: 'Xem đơn hàng',
+                allowOutsideClick: false
+            }).then((result) => {
+                window.location.href = '@Url.Action("History", "Order", new { id = Model.OrderId })';
+            });
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Đã sao chép nội dung',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            });
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #f8f9fa; /* Màu nền trang nhẹ nhàng */
+        }
+
+        .qr-container {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+            .qr-container:hover {
+                transform: scale(1.03);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+            }
+
+        .card {
+            margin-top: 20px;
+        }
+    </style>
+}

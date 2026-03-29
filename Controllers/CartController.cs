@@ -17,7 +17,7 @@ namespace lab2.Controllers
             _context = context;
         }
 
-        // 1. Hiển thị giỏ hàng từ Database
+        // 1. Trong hàm Index, nạp thêm số lượng tồn kho từ bảng Product
         public async Task<IActionResult> Index()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -25,12 +25,47 @@ namespace lab2.Controllers
                 .Include(c => c.Items)
                 .FirstOrDefaultAsync(c => c.UserId == userId);
 
-            if (cart == null)
+            if (cart != null)
             {
-                return View(new List<CartItem>());
+                foreach (var item in cart.Items)
+                {
+                    var product = await _context.Products.AsNoTracking()
+                        .FirstOrDefaultAsync(p => p.ProductId == item.ProductId);
+                    item.StockQuantity = product?.Quantity ?? 0;
+                }
+                return View(cart.Items);
+            }
+            return View(new List<CartItem>());
+        }
+
+        // 2. Cập nhật hàm UpdateQuantity để chặn khi vượt kho
+        [HttpPost]
+        public async Task<IActionResult> UpdateQuantity([FromBody] CartItemUpdate update)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var cartItem = await _context.CartItems
+                .FirstOrDefaultAsync(ci => ci.ProductId == update.ProductId && ci.Cart.UserId == userId);
+
+            if (cartItem == null) return Json(new { success = false, message = "Không tìm thấy sản phẩm" });
+
+            var product = await _context.Products.FindAsync(update.ProductId);
+
+            // Kiểm tra kho thực tế
+            if (update.Quantity > product.Quantity)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = $"Kho chỉ còn {product.Quantity} sản phẩm.",
+                    currentStock = product.Quantity
+                });
             }
 
-            return View(cart.Items);
+            cartItem.Quantity = update.Quantity;
+            await _context.SaveChangesAsync();
+
+            var cart = await _context.Carts.Include(c => c.Items).FirstOrDefaultAsync(c => c.UserId == userId);
+            return Json(new { success = true, count = cart?.Items.Sum(i => i.Quantity) ?? 0 });
         }
 
         // 2. Thêm sản phẩm vào giỏ (Lưu trực tiếp vào DB)
@@ -104,31 +139,7 @@ namespace lab2.Controllers
 
             return Json(new { success = true, count = totalCount, totalPrice = totalPrice });
         }
-
-        // 4. Cập nhật số lượng qua Ajax
-        [HttpPost]
-        public async Task<IActionResult> UpdateQuantity([FromBody] CartItemUpdate update)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var cartItem = await _context.CartItems
-                .FirstOrDefaultAsync(ci => ci.ProductId == update.ProductId && ci.Cart.UserId == userId);
-
-            if (cartItem != null)
-            {
-                // Kiểm tra tồn kho thực tế khi khách thay đổi số lượng trong giỏ
-                var product = await _context.Products.FindAsync(update.ProductId);
-                if (update.Quantity > product.Quantity)
-                {
-                    return Json(new { success = false, message = $"Chỉ còn {product.Quantity} sản phẩm trong kho" });
-                }
-
-                cartItem.Quantity = update.Quantity;
-                await _context.SaveChangesAsync();
-            }
-
-            var cart = await _context.Carts.Include(c => c.Items).FirstOrDefaultAsync(c => c.UserId == userId);
-            return Json(new { success = true, count = cart?.Items.Sum(i => i.Quantity) ?? 0 });
-        }
+        
     }
 
     public class CartItemUpdate

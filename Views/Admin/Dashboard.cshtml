@@ -4,20 +4,25 @@
 }
 
 <div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-dark">📊 Hệ thống Quản trị</h2>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">📊 Hệ thống Quản trị</h2>
+            <p class="text-muted small mb-0">Theo dõi chỉ số kinh doanh và hiệu suất bán hàng</p>
+        </div>
 
-        <div class="d-flex gap-2 align-items-end bg-white p-2 rounded-3 shadow-sm border">
-            <div>
-                <label class="small fw-bold text-muted d-block">Từ ngày</label>
-                <input type="date" id="startDate" class="form-control form-control-sm border-0">
+        <div class="filter-wrapper bg-white shadow-sm border rounded-4 p-2 d-flex align-items-center gap-2">
+            <div class="input-group input-group-sm border-0">
+                <span class="input-group-text bg-transparent border-0 text-muted small fw-bold">TỪ</span>
+                <input type="date" id="startDate" class="form-control border-0 bg-light rounded-2 custom-date-input">
             </div>
-            <div class="border-start ps-2">
-                <label class="small fw-bold text-muted d-block">Đến ngày</label>
-                <input type="date" id="endDate" class="form-control form-control-sm border-0">
+
+            <div class="vr mx-1" style="height: 20px;"></div> <div class="input-group input-group-sm border-0">
+                <span class="input-group-text bg-transparent border-0 text-muted small fw-bold">ĐẾN</span>
+                <input type="date" id="endDate" class="form-control border-0 bg-light rounded-2 custom-date-input">
             </div>
-            <button onclick="applyFilter()" class="btn btn-success btn-sm px-3 rounded-pill shadow-sm">
-                <i class="bi bi-filter"></i> Lọc
+
+            <button onclick="applyFilter()" class="btn btn-dark btn-sm px-4 rounded-3 fw-bold transition-base hover-lift">
+                <i class="bi bi-funnel-fill me-1"></i> Lọc
             </button>
         </div>
     </div>
@@ -66,7 +71,51 @@
         </div>
     </div>
 </div>
+<style>
+    /* Làm đẹp ô chọn ngày */
+    .custom-date-input {
+        min-width: 130px;
+        color: #495057;
+        font-weight: 500;
+        cursor: pointer;
+    }
 
+        .custom-date-input:focus {
+            background-color: #fff !important;
+            box-shadow: none;
+        }
+
+    /* Hiệu ứng wrapper */
+    .filter-wrapper {
+        transition: all 0.3s ease;
+    }
+
+        .filter-wrapper:focus-within {
+            border-color: #198754 !important;
+            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.1) !important;
+        }
+
+    /* Hiệu ứng nút bấm */
+    .hover-lift {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .hover-lift:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: #198754; /* Đổi sang màu xanh khi hover */
+            border-color: #198754;
+        }
+
+    /* Card thống nhất */
+    .stat-card {
+        transition: transform 0.3s ease;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+</style>
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>

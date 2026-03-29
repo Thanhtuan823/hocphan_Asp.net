@@ -156,7 +156,7 @@ namespace Shopping.Controllers
                         if (roles.Contains("Admin"))
                             return RedirectToAction("Dashboard", "Admin", new { area = "Management" });
 
-                        return RedirectToAction("Index", "Product");
+                        return RedirectToAction("Index", "Home");
                     }
                 }
 

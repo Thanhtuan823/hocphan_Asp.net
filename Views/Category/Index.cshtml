@@ -1,54 +1,95 @@
 ﻿@model IEnumerable<lab2.Models.Categories>
 @{
-    ViewData["Title"] = "Bộ sưu tập cây cảnh";
+    ViewData["Title"] = "Nghệ Thuật Sống Xanh - Cửa hàng";
     Layout = "~/Views/Shared/_LayoutUser.cshtml";
-    // Lấy giả lập 4 sản phẩm nổi bật từ danh mục đầu tiên (hoặc bạn có thể truyền từ Controller)
     var featuredProducts = Model.SelectMany(c => c.Products ?? new List<lab2.Models.Product>()).OrderBy(x => Guid.NewGuid()).Take(4).ToList();
+    int catCount = 0; // Biến đếm để tạo hiệu ứng bố cục sole (staggered)
 }
 
-<div class="container py-5">
-    <div class="row mb-5 align-items-end">
-        <div class="col-md-8">
-            <h6 class="text-success fw-bold text-uppercase tracking-wider">Khám phá không gian xanh</h6>
-            <h2 class="display-4 fw-bold">Nâng tầm phong cách <span class="text-success italic">Sống Trẻ</span></h2>
-        </div>
-        <div class="col-md-4 text-md-end">
-            <p class="text-muted mb-0">Hơn @Model.Sum(x => x.Products?.Count ?? 0) loại cây độc đáo đang chờ bạn</p>
-        </div>
-    </div>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
-    <div class="row g-4 mb-5">
-        @foreach (var item in Model)
-        {
-            <div class="col-12 col-md-6 col-lg-4">
-                <a asp-controller="Product" asp-action="Index" asp-route-categoryId="@item.CategoryId" class="text-decoration-none">
-                    <div class="category-banner rounded-5 overflow-hidden position-relative shadow-lg">
-                        <div class="banner-bg" style="background-image: url('@(string.IsNullOrEmpty(item.CategoryImageUrl) ? "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80&w=1000" : item.CategoryImageUrl)')"></div>
-                        <div class="banner-overlay"></div>
+<div class="hero-editorial position-relative overflow-hidden mb-5">
+    <div class="floating-leaf leaf-1">🌿</div>
+    <div class="floating-leaf leaf-2">🍃</div>
 
-                        <div class="banner-content p-4 d-flex flex-column justify-content-end h-100">
-                            <span class="badge bg-white text-success rounded-pill mb-2 w-fit px-3 py-2 shadow-sm fw-bold">
-                                @(item.Products?.Count ?? 0) Sản phẩm
-                            </span>
-                            <h3 class="text-white fw-bold mb-1">@item.CategoryName</h3>
-                            <p class="text-white-50 small mb-0 description-text">
-                                @(string.IsNullOrEmpty(item.Description) ? "Khám phá ngay bộ sưu tập độc quyền tại TreeDb." : item.Description)
-                            </p>
-
-                            <div class="go-icon">
-                                <i class="bi bi-arrow-right-short text-white display-4"></i>
-                            </div>
-                        </div>
-                    </div>
+    <div class="container-fluid px-0 h-100">
+        <div class="row g-0 h-100 align-items-center">
+            <div class="col-lg-5 offset-lg-1 p-5 p-xl-0 z-2 position-relative">
+                <p class="letter-spacing-lg text-success fw-bold mb-4 animate__animated animate__fadeInDown text-uppercase fs-6">
+                    <span class="line-decorator"></span> Tinh Hoa Thiên Nhiên
+                </p>
+                <h1 class="display-3 fw-bold text-dark mb-4 animate__animated animate__fadeInUp" style="line-height: 1.2;">
+                    Nghệ thuật <br />
+                    <span class="text-success fw-bold">Sống Xanh</span>
+                </h1>
+                <p class="lead text-muted mb-5 animate__animated animate__fadeInUp animate__delay-1s fw-medium fs-5" style="max-width: 450px; line-height: 1.8;">
+                    Mỗi chậu cây không chỉ là một mầm sống, mà là một tác phẩm nghệ thuật, một hơi thở bình yên giữa nhịp điệu hối hả của cuộc sống hiện đại.
+                </p>
+                <a href="#art-collection" class="btn-editorial animate__animated animate__fadeInUp animate__delay-2s fw-bold">
+                    Khám phá bộ sưu tập <i class="bi bi-arrow-down-right ms-2"></i>
                 </a>
             </div>
-        }
+
+            <div class="col-lg-6 h-100 d-none d-lg-block position-relative animate__animated animate__fadeInRight">
+                <div class="hero-image-wrapper">
+                    <div class="arch-image-container shadow-lg">
+                        <img src="https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?q=80&w=1200&auto=format&fit=crop" alt="Hero Plant" class="img-fluid hero-img">
+                    </div>
+                </div>
+                <div class="abstract-shape bg-success opacity-10 position-absolute"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container section-padding" id="art-collection">
+    <div class="text-center mb-6">
+        <h2 class="display-4 fw-bold text-dark mb-3">Bản Giao Hưởng <span class="text-success">Mầm Xanh</span></h2>
+        <div class="mx-auto mt-4 mb-4" style="width: 2px; height: 60px; background-color: var(--primary-green);"></div>
+        <p class="text-muted fs-5 max-w-75 mx-auto fw-medium" style="line-height: 1.8;">Những bộ sưu tập được giám tuyển kỹ lưỡng, mang đến linh hồn cho từng góc nhỏ trong ngôi nhà bạn.</p>
     </div>
 
-    <div class="featured-section py-5 px-4 rounded-5 shadow-sm" style="background: #f8faf9;">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold text-dark">Sản phẩm <span class="text-success">Nổi bật</span></h2>
-            <p class="text-muted">Được yêu thích nhất trong tuần qua</p>
+    <div class="row g-5">
+        @foreach (var item in Model)
+        {
+            <div class="col-12 col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: @(catCount * 0.2)s;">
+                <div class="category-art-card @(catCount % 3 == 1 ? "mt-lg-5" : "") @(catCount % 2 == 1 ? "mt-md-5 mt-lg-0" : "")">
+                    <a asp-controller="Product" asp-action="ProductByCategory" asp-route-categoryId="@item.CategoryId" class="text-decoration-none">
+
+                        <div class="art-img-box rounded-arch position-relative overflow-hidden shadow-sm mb-4">
+                            <img src="@(string.IsNullOrEmpty(item.CategoryImageUrl) ? "https://images.unsplash.com/photo-1453904300235-0f2f60b15b5d?q=80&w=800&auto=format&fit=crop" : item.CategoryImageUrl)"
+                                 class="w-100 h-100 object-fit-cover transition-img" alt="@item.CategoryName">
+
+                            <div class="art-overlay d-flex align-items-center justify-content-center">
+                                <span class="btn-discover fw-bold fs-4">Khám phá</span>
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <span class="text-uppercase text-muted small fw-bold tracking-wider mb-3 d-block">@item.Products?.Count() Thiết Kế</span>
+                            <h3 class="text-dark fw-bold fs-3 mb-0 hover-color-success transition-base">@item.CategoryName</h3>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            catCount++;
+        }
+    </div>
+</div>
+
+<div class="container-fluid bg-editorial py-6 mt-5 position-relative overflow-hidden">
+    <div class="container position-relative z-1">
+        <div class="row align-items-center mb-5">
+            <div class="col-md-6">
+                <span class="text-uppercase text-success small fw-bold tracking-wider mb-3 d-block line-decorator-left">TUYỆT TÁC</span>
+                <h2 class="display-5 fw-bold text-dark">Dấu Ấn <span class="text-success">Không Gian</span></h2>
+            </div>
+            <div class="col-md-6 text-md-end mt-4 mt-md-0">
+                <a href="#" class="btn-link-editorial">Xem toàn bộ tác phẩm <i class="bi bi-arrow-right"></i></a>
+            </div>
         </div>
 
         <div class="row g-4">
@@ -57,24 +98,23 @@
                 @foreach (var prod in featuredProducts)
                 {
                     <div class="col-6 col-md-3">
-                        <div class="card h-100 border-0 bg-transparent product-card-minimal">
-                            <div class="position-relative overflow-hidden rounded-4 mb-3 shadow-sm bg-white">
-                                <img src="@prod.ImageUrl" class="card-img-top p-2" alt="@prod.ProductName" style="height: 200px; object-fit: contain;">
-                                <div class="product-actions">
-                                    <button class="btn btn-white shadow-sm rounded-circle p-2"><i class="bi bi-cart-plus text-success"></i></button>
+                        <div class="product-minimal-card">
+                            <div class="product-img-wrap mb-4 position-relative bg-white shadow-sm" >
+                                <span class="position-absolute top-0 start-0 m-3 badge bg-dark text-white fw-bold px-3 py-2 rounded-0 z-1" style="font-size: 0.85rem; letter-spacing: 1px;">ĐỘC BẢN</span>
+                                <img src="@prod.ImageUrl" class="img-fluid p-4 product-zoom" alt="@prod.ProductName" style="height: 280px; width: 100%; object-fit: contain;">
+
+                                <div class="product-hover-actions d-flex flex-column gap-2">
+                                    <button class="action-circle bg-success text-white" onclick="addToCart(@prod.ProductId)" title="Thêm vào giỏ"><i class="bi bi-bag-plus"></i></button>
+                                    <a href="@Url.Action("Details", "Product", new { id = prod.ProductId })" class="action-circle bg-white text-dark" title="Chi tiết"><i class="bi bi-eye"></i></a>
                                 </div>
                             </div>
-                            <div class="card-body p-0 text-center">
-                                <h6 class="fw-bold mb-1">@prod.ProductName</h6>
-                                <p class="text-success fw-bold mb-0">@prod.Price.ToString("N0") VNĐ</p>
+                            <div class="text-center">
+                                <h4 class="fw-bold text-dark mb-2 fs-5">@prod.ProductName</h4>
+                                <p class="text-success fw-bold mb-0 fs-5">@prod.Price.ToString("N0") <span class="small text-decoration-underline">đ</span></p>
                             </div>
                         </div>
                     </div>
                 }
-            }
-            else
-            {
-                <p class="text-center text-muted italic small">Đang cập nhật sản phẩm tiêu biểu...</p>
             }
         </div>
     </div>
@@ -82,112 +122,338 @@
 
 @section Styles {
     <style>
+        :root {
+            --primary-green: #2b593f;
+            --light-cream: #f9f8f4;
+            --text-dark: #1a1a1a;
+            --main-font: 'Quicksand', sans-serif;
+        }
+
+        body {
+            background-color: #fafafa;
+            font-family: var(--main-font);
+            color: var(--text-dark);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--main-font);
+            font-weight: 700;
+        }
+
         .tracking-wider {
             letter-spacing: 2px;
         }
 
-        .w-fit {
-            width: fit-content;
+        .letter-spacing-lg {
+            letter-spacing: 4px;
         }
 
-        .italic {
-            font-style: italic;
+        .transition-base {
+            transition: all 0.3s ease;
         }
 
-        /* Category Banner Enhancements */
-        .category-banner {
-            height: 320px;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .py-6 {
+            padding-top: 100px;
+            padding-bottom: 100px;
         }
 
-        .banner-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
+        .mb-6 {
+            margin-bottom: 5rem;
+        }
+
+        /* 1. EDITORIAL HERO */
+        .hero-editorial {
+            min-height: 85vh;
+            background-color: var(--light-cream);
+            display: flex;
+            align-items: center;
+        }
+
+        .line-decorator {
+            display: inline-block;
+            width: 40px;
+            height: 3px;
+            background-color: var(--primary-green);
+            vertical-align: middle;
+            margin-right: 15px;
+            border-radius: 2px;
+        }
+
+        .line-decorator-left {
+            position: relative;
+            padding-left: 50px;
+        }
+
+            .line-decorator-left::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 50%;
+                width: 40px;
+                height: 3px;
+                background-color: var(--primary-green);
+                border-radius: 2px;
+            }
+
+        .btn-editorial {
+            display: inline-flex;
+            align-items: center;
+            font-size: 1.15rem;
+            color: var(--text-dark);
+            text-decoration: none;
+            border-bottom: 2px solid var(--text-dark);
+            padding-bottom: 5px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+            .btn-editorial:hover {
+                color: var(--primary-green);
+                border-color: var(--primary-green);
+                transform: translateX(10px);
+            }
+
+        /* Ảnh vòm (Arch) của Hero */
+        .hero-image-wrapper {
             height: 100%;
-            background-size: cover;
-            background-position: center;
-            transition: transform 0.6s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 50px;
         }
 
-        .banner-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.85) 100%);
-        }
-
-        .banner-content {
+        .arch-image-container {
+            width: 80%;
+            height: 80vh;
+            border-radius: 500px 500px 0 0;
+            overflow: hidden;
             position: relative;
             z-index: 2;
+            border: 15px solid white;
         }
 
-        .description-text {
-            max-height: 0;
+        .hero-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scale(1.05);
+            transition: transform 10s ease;
+        }
+
+        .hero-editorial:hover .hero-img {
+            transform: scale(1.15);
+        }
+
+        .abstract-shape {
+            width: 400px;
+            height: 600px;
+            border-radius: 500px;
+            top: 50%;
+            left: 30%;
+            transform: translateY(-50%) rotate(-15deg);
+            filter: blur(80px);
+            z-index: 1;
+        }
+
+        /* Floating Leaves Animation */
+        .floating-leaf {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0.2;
+            filter: blur(2px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .leaf-1 {
+            top: 20%;
+            left: 10%;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .leaf-2 {
+            bottom: 30%;
+            right: 45%;
+            font-size: 3rem;
+            animation: float 12s ease-in-out infinite reverse;
+        }
+
+        @@keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-30px) rotate(20deg);
+            }
+
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+        }
+
+        /* 2. CATEGORY ART CARDS */
+        .rounded-arch {
+            border-radius: 200px 200px 15px 15px;
+            height: 450px;
+        }
+
+        .category-art-card {
+            cursor: pointer;
+        }
+
+        .transition-img {
+            transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .art-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
             opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .btn-discover {
+            color: white;
+            border-bottom: 2px solid white;
+            padding-bottom: 5px;
+            transform: translateY(20px);
             transition: all 0.4s ease;
+            opacity: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .category-art-card:hover .transition-img {
+            transform: scale(1.08);
+        }
+
+        .category-art-card:hover .art-overlay {
+            opacity: 1;
+        }
+
+        .category-art-card:hover .btn-discover {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .hover-color-success:hover {
+            color: var(--primary-green) !important;
+        }
+
+        /* 3. FEATURED MASTERPIECES */
+        .bg-editorial {
+            background-color: #eef2ef;
+        }
+
+        .btn-link-editorial {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            border-bottom: 2px solid transparent;
+            padding-bottom: 5px;
+            transition: all 0.3s ease;
+        }
+
+            .btn-link-editorial:hover {
+                color: var(--primary-green);
+                border-color: var(--primary-green);
+            }
+
+        .product-minimal-card {
+            cursor: pointer;
+        }
+
+        .product-img-wrap {
+            border-radius: 20px 20px 0 0;
             overflow: hidden;
         }
 
-        .go-icon {
+        .product-zoom {
+            transition: transform 0.6s ease;
+        }
+
+        .product-minimal-card:hover .product-zoom {
+            transform: scale(1.1);
+        }
+
+        .product-hover-actions {
             position: absolute;
             bottom: 20px;
+            right: -60px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
+        }
+
+        .product-minimal-card:hover .product-hover-actions {
             right: 20px;
-            opacity: 0;
-            transform: translateX(-20px);
-            transition: all 0.4s ease;
-        }
-
-        /* Hover Effects */
-        .category-banner:hover {
-            transform: translateY(-10px);
-        }
-
-            .category-banner:hover .banner-bg {
-                transform: scale(1.1);
-            }
-
-            .category-banner:hover .description-text {
-                max-height: 60px;
-                opacity: 1;
-                margin-top: 10px;
-            }
-
-            .category-banner:hover .go-icon {
-                opacity: 1;
-                transform: translateX(0);
-            }
-
-        /* Product Card Minimal Style */
-        .product-card-minimal {
-            transition: all 0.3s ease;
-        }
-
-            .product-card-minimal:hover {
-                transform: translateY(-5px);
-            }
-
-        .product-actions {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            opacity: 0;
-            transform: translateY(10px);
-            transition: all 0.3s ease;
-        }
-
-        .product-card-minimal:hover .product-actions {
             opacity: 1;
-            transform: translateY(0);
         }
 
-        .btn-white {
-            background: white;
+        .action-circle {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
             border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
         }
+
+            .action-circle:hover {
+                transform: scale(1.15);
+            }
     </style>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // JS Thêm vào giỏ hàng
+        function addToCart(productId) {
+            event.preventDefault();
+
+            fetch('/Cart/AddToCart', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `productId=${productId}&quantity=1`
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Tuyệt tác đã vào giỏ!',
+                        text: 'Sản phẩm đã được thêm thành công.',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true,
+                        background: '#f9f8f4',
+                        color: '#2b593f',
+                        iconColor: '#2b593f'
+                    });
+                    const badge = document.getElementById("cart-count");
+                    if (badge) {
+                        badge.textContent = data.count;
+                        badge.classList.add('animate__animated', 'animate__bounceIn');
+                        setTimeout(() => badge.classList.remove('animate__animated', 'animate__bounceIn'), 1000);
+                    }
+                }
+            });
+        }
+    </script>
 }

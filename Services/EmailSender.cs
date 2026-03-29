@@ -11,7 +11,7 @@ namespace lab2.Services
         {
             var message = new MimeMessage();
             // Bạn thay "Tên Shop" và "Email của bạn" vào đây
-            message.From.Add(new MailboxAddress("Life and Trees Shop", "your-email@gmail.com"));
+            message.From.Add(new MailboxAddress("Life and Trees Shop", "LifeandTrees@gmail.com"));
             message.To.Add(new MailboxAddress("", email));
             message.Subject = subject;
 

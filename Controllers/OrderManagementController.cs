@@ -133,66 +133,120 @@ namespace lab2.Controllers
 
         // ================= EMAIL HELPERS FOR ADMIN =================
 
+
         private string GetCompletedOrderHtmlEmail(Order order)
         {
             var rows = "";
             foreach (var item in order.OrderDetails)
             {
                 rows += $@"
-        <tr>
-            <td>{item.ProductName}</td>
-            <td>x{item.Quantity}</td>
-            <td>{item.Price:N0}đ</td>
-        </tr>";
+                <tr>
+                    <td style='padding: 12px 0; border-bottom: 1px solid #edf2f7;'>
+                        <span style='display: block; font-weight: 600; color: #2d3748;'>{item.ProductName}</span>
+                    </td>
+                    <td style='padding: 12px 8px; border-bottom: 1px solid #edf2f7; text-align: center; color: #718096;'>x{item.Quantity}</td>
+                    <td style='padding: 12px 0; border-bottom: 1px solid #edf2f7; text-align: right; font-weight: 600; color: #2d3748;'>{item.Price:N0}đ</td>
+                </tr>";
             }
 
             return $@"
-    <div style='font-family: Segoe UI, sans-serif;'>
-        <h2 style='color: #198754;'>Thông báo đơn hàng hoàn tất</h2>
-        <p>Đơn hàng <b>#{order.OrderId}</b> của khách hàng <b>{order.Name}</b> đã được xử lý thành công.</p>
-        <table style='width:100%; border-collapse: collapse; margin-top: 20px;'>
-            <thead>
-                <tr>
-                    <th>Sản phẩm</th>
-                    <th>SL</th>
-                    <th>Giá</th>
-                </tr>
-            </thead>
-            <tbody>
-                {rows}
-            </tbody>
-        </table>
-        <p style='margin-top: 20px;'>Tổng giá trị: <b>{order.TotalAmount:N0}đ</b></p>
-    </div>";
-        }
+            <div style='background-color: #f7fafc; padding: 40px 10px; font-family: ""Segoe UI"", Tahoma, Geneva, Verdana, sans-serif;'>
+                <div style='max-width: 600px; margin: auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);'>
+                    <div style='background: #198754; padding: 30px; text-align: center;'>
+                        <h1 style='color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;'>LIFE & TREES</h1>
+                        <p style='color: #e2e8f0; margin-top: 5px; text-transform: uppercase; font-weight: bold;'>Đơn hàng đã hoàn tất</p>
+                    </div>
+                    <div style='padding: 30px;'>
+                        <h2 style='color: #2d3748; font-size: 20px; margin-top: 0;'>Thông báo cho Admin,</h2>
+                        <p style='color: #4a5568; line-height: 1.6;'>Đơn hàng <b>#{order.OrderId}</b> của khách hàng <b>{order.Name}</b> đã được giao thành công và chuyển sang trạng thái hoàn tất.</p>
+                
+                        <table style='width: 100%; border-collapse: collapse; margin-top: 20px;'>
+                            <thead>
+                                <tr>
+                                    <th align='left' style='padding-bottom: 10px; border-bottom: 2px solid #198754; color: #198754; font-size: 14px; text-transform: uppercase;'>Sản phẩm</th>
+                                    <th style='padding-bottom: 10px; border-bottom: 2px solid #198754; color: #198754; font-size: 14px; text-transform: uppercase;'>SL</th>
+                                    <th align='right' style='padding-bottom: 10px; border-bottom: 2px solid #198754; color: #198754; font-size: 14px; text-transform: uppercase;'>Giá</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {rows}
+                            </tbody>
+                        </table>
 
+                        <div style='margin-top: 20px; text-align: right;'>
+                            <p style='margin: 0; color: #718096;'>Doanh thu đơn hàng:</p>
+                            <h2 style='margin: 5px 0; color: #198754; font-size: 28px;'>{order.TotalAmount:N0}đ</h2>
+                        </div>
+
+                        <div style='margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px;'>
+                            <h4 style='margin: 0 0 10px 0; color: #2d3748;'>📍 Thông tin khách hàng</h4>
+                            <p style='margin: 0; color: #4a5568; font-size: 14px;'>Khách hàng: {order.Name}</p>
+                            <p style='margin: 5px 0 0 0; color: #4a5568; font-size: 14px;'>Địa chỉ: {order.Address1}, {order.City}</p>
+                        </div>
+                
+                        <div style='margin-top: 30px; text-align: center;'>
+                            <p style='font-size: 12px; color: #a0aec0;'>Hệ thống quản lý Life & Trees</p>
+                        </div>
+                    </div>
+                </div>
+            </div>";
+        }
         private string GetCancelOrderHtmlEmail(Order order)
         {
+            // Tận dụng lại danh sách sản phẩm để khách biết đơn nào bị hủy
+            var rows = "";
+            foreach (var item in order.OrderDetails)
+            {
+                rows += $@"
+                <tr>
+                    <td style='padding: 12px 0; border-bottom: 1px solid #edf2f7;'>
+                        <span style='display: block; font-weight: 600; color: #2d3748; text-decoration: line-through;'>{item.ProductName}</span>
+                    </td>
+                    <td style='padding: 12px 8px; border-bottom: 1px solid #edf2f7; text-align: center; color: #718096;'>x{item.Quantity}</td>
+                    <td style='padding: 12px 0; border-bottom: 1px solid #edf2f7; text-align: right; font-weight: 600; color: #718096;'>{item.Price:N0}đ</td>
+                </tr>";
+            }
+
             return $@"
-    <div style='background-color: #fff5f5; padding: 40px 10px; font-family: ""Segoe UI"", Tahoma, Geneva, Verdana, sans-serif;'>
-        <div style='max-width: 600px; margin: auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 5px solid #dc3545;'>
-            <div style='padding: 30px; text-align: center;'>
-                <h1 style='color: #dc3545; margin: 0; font-size: 24px; letter-spacing: 1px;'>LIFE & TREES</h1>
-                <p style='color: #718096; margin-top: 5px; text-transform: uppercase; font-weight: bold;'>Thông báo hủy đơn hàng</p>
-            </div>
-            <div style='padding: 30px; border-top: 1px solid #edf2f7;'>
-                <h2 style='color: #2d3748; font-size: 18px; margin-top: 0;'>Chào {order.Name},</h2>
-                <p style='color: #4a5568; line-height: 1.6;'>
-                    Đơn hàng <b>#{order.OrderId}</b> của bạn đã được hệ thống xác nhận <b>HỦY</b>.
-                </p>
-                <div style='margin: 20px 0; padding: 20px; background: #f8f9fa; border-left: 4px solid #dc3545; border-radius: 4px;'>
-                    <p style='margin: 0; color: #2d3748; font-weight: bold;'>Lý do hủy:</p>
-                    <p style='margin: 5px 0 0 0; color: #4a5568;'>{(string.IsNullOrEmpty(order.CancelReason) ? "Theo yêu cầu của khách hàng hoặc shop." : order.CancelReason)}</p>
+            <div style='background-color: #fff5f5; padding: 40px 10px; font-family: ""Segoe UI"", Tahoma, Geneva, Verdana, sans-serif;'>
+                <div style='max-width: 600px; margin: auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 5px solid #dc3545;'>
+                    <div style='padding: 30px; text-align: center;'>
+                        <h1 style='color: #dc3545; margin: 0; font-size: 24px; letter-spacing: 1px;'>LIFE & TREES</h1>
+                        <p style='color: #718096; margin-top: 5px; text-transform: uppercase; font-weight: bold;'>Xác nhận hủy đơn hàng</p>
+                    </div>
+                    <div style='padding: 30px;'>
+                        <h2 style='color: #2d3748; font-size: 18px; margin-top: 0;'>Chào {order.Name},</h2>
+                        <p style='color: #4a5568; line-height: 1.6;'>
+                            Chúng tôi xác nhận đơn hàng <b>#{order.OrderId}</b> của bạn đã được <b>HỦY</b> thành công trên hệ thống.
+                        </p>
+
+                        <div style='margin: 20px 0; padding: 20px; background: #fff5f5; border-left: 4px solid #dc3545; border-radius: 4px;'>
+                            <p style='margin: 0; color: #2d3748; font-weight: bold;'>Lý do hủy:</p>
+                            <p style='margin: 5px 0 0 0; color: #e53e3e;'>{(string.IsNullOrEmpty(order.CancelReason) ? "Theo yêu cầu hoặc thay đổi từ hệ thống." : order.CancelReason)}</p>
+                        </div>
+
+                        <h4 style='color: #2d3748; border-bottom: 1px solid #edf2f7; padding-bottom: 10px;'>Chi tiết đơn hàng đã hủy:</h4>
+                        <table style='width: 100%; border-collapse: collapse;'>
+                            <tbody>
+                                {rows}
+                            </tbody>
+                        </table>
+
+                        <div style='margin-top: 20px; text-align: right; opacity: 0.7;'>
+                            <p style='margin: 0; color: #718096;'>Tổng giá trị hoàn lại:</p>
+                            <h2 style='margin: 5px 0; color: #2d3748; font-size: 24px; text-decoration: line-through;'>{order.TotalAmount:N0}đ</h2>
+                        </div>
+
+                        <p style='color: #718096; font-size: 14px; margin-top: 30px; line-height: 1.6;'>
+                            Nếu bạn không thực hiện yêu cầu này hoặc có thắc mắc, vui lòng liên hệ hotline hỗ trợ của chúng tôi ngay lập tức.
+                        </p>
+
+                        <div style='margin-top: 30px; text-align: center;'>
+                            <a href='#' style='display: inline-block; background: #198754; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold;'>Quay lại cửa hàng</a>
+                        </div>
+                    </div>
                 </div>
-                <p style='color: #4a5568; line-height: 1.6;'>
-                    Số tiền và sản phẩm của đơn hàng này đã được hoàn lại vào kho. Nếu bạn có bất kỳ thắc mắc nào hoặc muốn đặt lại sản phẩm khác, đừng ngần ngại liên hệ với chúng tôi.
-                </p>
-                <div style='margin-top: 30px; text-align: center;'>
-                    <a href='#' style='background: #198754; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;'>Tiếp tục mua sắm</a>
-                </div>
-            </div>
-        </div>
-    </div>";
+            </div>";
         }
     }
 }

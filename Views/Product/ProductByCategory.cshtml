@@ -75,40 +75,43 @@
             }
             else
             {
-                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="mainGrid">
+                <div class="row g-4 mb-5 pb-4 border-bottom" id="mainGrid">
                     @foreach (var item in Model.Products)
                     {
-                        <div class="col product-item animate__animated animate__fadeInUp"
-                             data-price="@item.Price"
-                             data-name="@item.ProductName.ToLower()">
+                        @* THÊM: class "product-item" và các data attributes để lọc/sắp xếp *@
+                        <div class="col-md-6 col-lg-4 product-item animate__animated animate__fadeInUp"
+                             data-name="@item.ProductName.ToLower()"
+                             data-price="@item.Price">
 
-                            <div class="card h-100 shadow-sm transition-card border-0 @(item.Quantity <= 0 ? "opacity-75" : "")" style="border-radius: 15px; overflow: hidden;">
-                                <div class="position-relative overflow-hidden product-img-container">
-                                    <img src="@item.ImageUrl" class="card-img-top" alt="@item.ProductName"
-                                         style="height:250px; object-fit:cover; transition: transform 0.5s ease; @(item.Quantity <= 0 ? "filter: grayscale(80%);" : "")" />
-
-                                    <div class="card-overlay d-flex align-items-center justify-content-center">
-                                        <a href="@Url.Action("Details", "Product", new { id = item.ProductId })"
-                                           class="btn btn-light rounded-circle shadow-sm mx-1 p-2">
-                                            <i class="bi bi-eye text-success fs-5"></i>
-                                        </a>
-                                    </div>
+                            <div class="card product-card h-100 shadow-sm">
+                                <div class="img-container">
+                                    <img src="@item.ImageUrl" alt="@item.ProductName" loading="lazy">
                                 </div>
 
-                                <div class="card-body d-flex flex-column p-4">
-                                    <h6 class="card-title text-dark fw-bold mb-2">@item.ProductName</h6>
-                                    <p class="text-success fw-bold mb-3 fs-5 price-display">@item.Price.ToString("N0") đ</p>
+                                <div class="card-body p-4 d-flex flex-column">
+                                    <span class="text-muted small text-uppercase mb-1 d-block" style="font-size: 0.75rem; letter-spacing: 1px;">
+                                        @item.Category?.CategoryName
+                                    </span>
+                                    <h5 class="card-title fw-bold text-dark mb-3 product-title">@item.ProductName</h5>
+
+                                    <div class="product-stats d-flex justify-content-between align-items-center text-muted">
+                                        @* THÊM: id để cập nhật số lượng kho động *@
+                                        <span><i class="bi bi-box-seam text-success"></i> Kho: <strong id="stock-@item.ProductId">@item.Quantity</strong></span>
+                                        <span><i class="bi bi-cart-check text-warning"></i> Đã bán: <strong>@(item.SoldQuantity)</strong></span>
+                                    </div>
+
                                     <div class="mt-auto">
-                                        @if (item.Quantity > 0)
-                                        {
-                                            <button class="btn btn-outline-success w-100 rounded-pill btn-sm fw-bold py-2 shadow-none btn-cart" onclick="addToCart(@item.ProductId)">
-                                                <i class="bi bi-cart-plus me-1"></i> Thêm vào giỏ
+                                        <p class="product-price fw-bold mb-3">@item.Price.ToString("N0") <span class="text-decoration-underline small fs-6">đ</span></p>
+
+                                        <div class="d-flex gap-2">
+                                            <a asp-controller="Product" asp-action="Details" asp-route-id="@item.ProductId"
+                                               class="btn btn-outline-success rounded-pill flex-grow-1 fw-bold">
+                                                Chi tiết
+                                            </a>
+                                            <button class="btn btn-cart-icon rounded-circle shadow-sm" onclick="addToCart(@item.ProductId)" title="Thêm vào giỏ">
+                                                <i class="bi bi-cart-plus fs-5"></i>
                                             </button>
-                                        }
-                                        else
-                                        {
-                                            <button class="btn btn-secondary w-100 rounded-pill btn-sm disabled py-2">Hết hàng</button>
-                                        }
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -142,39 +145,67 @@
         color: #198754 !important;
         transition: 0.3s;
     }
-
-    .transition-card {
+    /* --- 2. Thẻ Sản Phẩm (Product Card) - Đồng bộ hoàn toàn --- */
+    .product-card {
+        border: 1px solid #f0f0f0;
+        border-radius: 16px !important;
+        background: #fff;
         transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        height: 100%;
     }
 
-        .transition-card:hover {
+        .product-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+            box-shadow: 0 18px 35px rgba(0,0,0,0.06) !important;
+            border-color: #d1e7dd;
         }
 
-            .transition-card:hover .card-img-top {
-                transform: scale(1.1);
-            }
+    /* Container hình ảnh và hiệu ứng zoom */
+    .img-container {
+        overflow: hidden;
+        position: relative;
+        height: 320px; /* Tăng từ 260px lên 320px để cân đối với chiều rộng mới */
+        border-radius: 16px 16px 0 0;
+    }
 
+    .product-item {
+        display: flex;
+    }
+
+    .img-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+    }
+
+    .product-card:hover .img-container img {
+        transform: scale(1.08);
+    }
+
+    /* Overlay xuất hiện khi hover vào card */
     .card-overlay {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0,0,0,0.2);
+        background: rgba(0,0,0,0.15);
         opacity: 0;
         transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
     }
 
-    .transition-card:hover .card-overlay {
+    .product-card:hover .card-overlay {
         opacity: 1;
     }
 
-    .btn-cart:hover {
-        background-color: #198754 !important;
-        color: white !important;
-    }
 
     /* CSS làm nổi bật Category đang chọn */
     .category-active {

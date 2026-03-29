@@ -41,6 +41,12 @@ namespace lab2.Models
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal TotalAmount { get; set; }
+        // Thêm vào trong class Order
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal ShippingFee { get; set; } // Lưu phí vận chuyển thực tế của đơn hàng
+
+        [Display(Name = "Mã giảm giá ")]
+        public string? DiscountCode { get; set; }
 
         // Danh sách chi tiết món hàng trong đơn
         public List<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();

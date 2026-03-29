@@ -21,6 +21,9 @@ namespace lab2.Models
         public decimal Price { get; set; }
 
         public int Quantity { get; set; }
+        // Thêm thuộc tính này vào class CartItem
+        [NotMapped]
+        public int StockQuantity { get; set; }
 
         // Thuộc tính tính toán nhanh (không lưu xuống DB)
         [NotMapped]

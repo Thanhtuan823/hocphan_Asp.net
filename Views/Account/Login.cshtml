@@ -3,30 +3,130 @@
     ViewData["Title"] = "Đăng nhập";
 }
 
-<div class="d-flex justify-content-center align-items-center vh-100">
-    <div class="card shadow-lg p-4" style="width: 400px;">
-        <h3 class="text-center text-success mb-4">Đăng nhập tài khoản</h3>
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 85vh;">
+    <div class="card border-0 shadow-lg p-4 p-md-5 position-relative" style="width: 100%; max-width: 500px; border-radius: 25px;">
 
-        <form asp-action="Login" method="post">
-            <div asp-validation-summary="All" class="text-danger"></div>
+        @* Nút quay lại trang chủ hoặc trang trước đó *@
+        <a asp-action="Index" asp-controller="Home" class="btn-back text-success text-decoration-none" title="Quay lại">
+            <i class="bi bi-arrow-left-circle-fill fs-3"></i>
+        </a>
 
+        <div class="text-center mb-4 mt-2">
+            <div class="display-6 text-success mb-2">🌿</div>
+            <h3 class="fw-bold text-success uppercase-tracking">CHÀO MỪNG TRỞ LẠI</h3>
+            <p class="text-muted small">Đăng nhập để tiếp tục chăm sóc khu vườn của bạn</p>
+        </div>
+
+        <form asp-action="Login" method="post" class="px-lg-3">
+            <div asp-validation-summary="ModelOnly" class="text-danger small mb-3 text-center"></div>
+
+            @* Input Email *@
             <div class="form-group mb-3">
-                <label asp-for="Email"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
+                <label asp-for="Email" class="fw-semibold mb-1 text-secondary ms-2">Địa chỉ Email</label>
+                <div class="input-group shadow-sm-custom">
+                    <span class="input-group-text bg-light border-0 rounded-pill-start text-success px-3">
+                        <i class="bi bi-envelope"></i>
+                    </span>
+                    <input asp-for="Email" class="form-control bg-light border-0 rounded-pill-end px-3 py-2" placeholder="email@vi-du.com" />
+                </div>
+                <span asp-validation-for="Email" class="text-danger small ms-2"></span>
             </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="Password"></label>
-                <input asp-for="Password" type="password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
+            @* Input Mật khẩu *@
+            <div class="form-group mb-4">
+                <label asp-for="Password" class="fw-semibold mb-1 text-secondary ms-2">Mật khẩu</label>
+                <div class="input-group shadow-sm-custom position-relative">
+                    <span class="input-group-text bg-light border-0 rounded-pill-start text-success px-3">
+                        <i class="bi bi-lock"></i>
+                    </span>
+                    <input asp-for="Password" type="password" id="passwordInput"
+                           class="form-control bg-light border-0 rounded-pill-end px-3 py-2"
+                           placeholder="••••••••" />
+                    <i class="bi bi-eye-slash toggle-password" id="togglePasswordIcon" onclick="togglePasswordVisibility()"></i>
+                </div>
+                <span asp-validation-for="Password" class="text-danger small ms-2"></span>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
+            <button type="submit" class="btn btn-success w-100 fw-bold rounded-pill py-3 shadow-sm mb-3 text-uppercase" style="letter-spacing: 1px;">
+                ĐĂNG NHẬP NGAY
+            </button>
         </form>
 
-        <div class="text-center mt-3">
-            <a asp-action="Register" asp-controller="Account">Chưa có tài khoản? Đăng ký</a>
+        <div class="text-center mt-2">
+            <p class="small text-muted mb-0">Bạn chưa có tài khoản?</p>
+            <a asp-action="Register" asp-controller="Account" class="text-success fw-bold text-decoration-none hover-underline">
+                Đăng ký thành viên mới
+            </a>
         </div>
     </div>
 </div>
+
+<script>
+    function togglePasswordVisibility() {
+        var passwordInput = document.getElementById("passwordInput");
+        var icon = document.getElementById("togglePasswordIcon");
+
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            icon.classList.remove("bi-eye-slash");
+            icon.classList.add("bi-eye");
+        } else {
+            passwordInput.type = "password";
+            icon.classList.remove("bi-eye");
+            icon.classList.add("bi-eye-slash");
+        }
+    }
+</script>
+
+<style>
+    .uppercase-tracking {
+        letter-spacing: 1px;
+    }
+
+    .btn-back {
+        position: absolute;
+        top: 25px;
+        left: 25px;
+        transition: all 0.3s ease;
+        opacity: 0.6;
+    }
+
+        .btn-back:hover {
+            transform: scale(1.1) translateX(-3px);
+            opacity: 1;
+            color: #157347 !important;
+        }
+
+    .rounded-pill-start {
+        border-radius: 50px 0 0 50px !important;
+    }
+
+    .rounded-pill-end {
+        border-radius: 0 50px 50px 0 !important;
+    }
+
+    .shadow-sm-custom {
+        box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 20px;
+        cursor: pointer;
+        z-index: 10;
+        color: #6c757d;
+    }
+
+    .hover-underline:hover {
+        text-decoration: underline !important;
+    }
+
+    .form-control:focus {
+        box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.1);
+        background-color: #fff !important;
+        border: 1px solid #198754 !important;
+    }
+</style>

@@ -2,6 +2,13 @@
 
 @{
     ViewData["Title"] = "Trang chủ - Life and Trees";
+
+    // XỬ LÝ LOGIC LỌC SẢN PHẨM TẠI ĐÂY
+    // 1. Mới nhất: Lấy 4 sản phẩm có ID lớn nhất (vừa được thêm vào DB)
+    var newestProducts = Model.OrderByDescending(x => x.ProductId).Take(4);
+
+    // 2. Bán chạy: Lấy 8 sản phẩm có số lượng bán (SoldQuantity) cao nhất
+    var bestSellingProducts = Model.OrderByDescending(x => x.SoldQuantity).Take(8);
 }
 
 @section Styles {
@@ -181,7 +188,7 @@
             flex-direction: column;
         }
 
-            .product-card:hover {
+            .product-card:hover:not(.out-of-stock) {
                 transform: translateY(-8px);
                 box-shadow: 0 18px 35px rgba(0,0,0,0.06) !important;
                 border-color: #d1e7dd;
@@ -201,15 +208,42 @@
                 transition: transform 0.6s ease;
             }
 
-        .product-card:hover .img-container img {
+        .product-card:hover:not(.out-of-stock) .img-container img {
             transform: scale(1.08);
         }
+
+        /* --- HIỆU ỨNG HẾT HÀNG ĐỒNG BỘ --- */
+        .out-of-stock {
+            opacity: 0.8;
+        }
+
+            .out-of-stock .img-container img {
+                filter: grayscale(100%);
+            }
+
+        .out-of-stock-overlay {
+            background: rgba(255, 255, 255, 0.6);
+            z-index: 5;
+        }
+
+        .btn-cart-icon:disabled {
+            background-color: #f1f3f5 !important;
+            color: #adb5bd !important;
+            cursor: not-allowed;
+            box-shadow: none !important;
+        }
+
+            .btn-cart-icon:disabled:hover {
+                transform: none !important;
+            }
+        /* -------------------------------- */
 
         .badge-hot {
             background: linear-gradient(45deg, #ff416c, #ff4b2b);
             padding: 6px 14px;
             font-size: 0.8rem;
             letter-spacing: 1px;
+            z-index: 10;
         }
 
         .badge-new {
@@ -217,6 +251,7 @@
             padding: 6px 14px;
             font-size: 0.8rem;
             letter-spacing: 1px;
+            z-index: 10;
         }
 
         .product-title {
@@ -230,8 +265,6 @@
         }
 
         .product-stats {
-            background-color: #f8f9fa;
-            border-radius: 8px;
             padding: 8px 12px;
             margin-bottom: 15px;
             font-size: 0.85rem;
@@ -252,7 +285,7 @@
             justify-content: center;
         }
 
-            .btn-cart-icon:hover {
+            .btn-cart-icon:hover:not(:disabled) {
                 background-color: var(--primary-green);
                 color: white;
             }
@@ -373,6 +406,7 @@
 
 <div class="container section-padding pt-0" id="shop-now">
 
+    @* SẢN PHẨM MỚI NHẤT *@
     <div class="text-center mb-5">
         <h2 class="fw-bold display-6">Sản phẩm mới nhất</h2>
         <p class="text-muted fs-6 mt-2 max-w-75 mx-auto">Khám phá những mầm xanh vừa cập bến Life and Trees, sẵn sàng làm bừng sáng và mang lại năng lượng tích cực cho không gian của bạn.</p>
@@ -380,13 +414,22 @@
     </div>
 
     <div class="row g-4 mb-5 pb-4 border-bottom">
-        @foreach (var item in Model.Take(4))
+        @* SỬ DỤNG BIẾN newestProducts ĐÃ ĐƯỢC LỌC Ở TRÊN *@
+        @foreach (var item in newestProducts)
         {
+            bool isOutOfStock = item.Quantity <= 0;
+
             <div class="col-md-6 col-lg-3">
-                <div class="card product-card h-100 shadow-sm">
-                    <div class="img-container">
+
+                <div class="card product-card h-100 shadow-sm @(isOutOfStock ? "out-of-stock" : "")" id="product-card-@item.ProductId">
+                    <div class="img-container position-relative">
                         <span class="badge badge-new text-uppercase position-absolute top-0 start-0 m-3 shadow-sm rounded-pill">Mới</span>
                         <img src="@item.ImageUrl" alt="@item.ProductName" loading="lazy">
+
+                        @* Overlay báo Hết Hàng *@
+                        <div id="out-of-stock-badge-@item.ProductId" class="out-of-stock-overlay position-absolute top-0 start-0 w-100 h-100 justify-content-center align-items-center @(isOutOfStock ? "d-flex" : "d-none")">
+                            <span class="badge bg-dark text-white fw-bold px-3 py-2 fs-6 shadow-sm" style="letter-spacing: 1px;">TẠM HẾT HÀNG</span>
+                        </div>
                     </div>
 
                     <div class="card-body p-4 d-flex flex-column">
@@ -396,7 +439,7 @@
                         <h5 class="card-title fw-bold text-dark mb-3 product-title">@item.ProductName</h5>
 
                         <div class="product-stats d-flex justify-content-between align-items-center text-muted">
-                            <span><i class="bi bi-box-seam text-success"></i> Kho: <strong>@item.Quantity</strong></span>
+                            <span><i class="bi bi-box-seam text-success"></i> Kho: <strong id="stock-@item.ProductId">@item.Quantity</strong></span>
                             <span><i class="bi bi-cart-check text-warning"></i> Đã bán: <strong>@(item.SoldQuantity)</strong></span>
                         </div>
 
@@ -408,7 +451,7 @@
                                    class="btn btn-outline-success rounded-pill flex-grow-1 fw-bold">
                                     Chi tiết
                                 </a>
-                                <button class="btn btn-cart-icon rounded-circle shadow-sm" style="width: 42px; height: 42px;" onclick="addToCart(@item.ProductId)" title="Thêm vào giỏ">
+                                <button id="btn-add-cart-@item.ProductId" class="btn btn-cart-icon rounded-circle shadow-sm" style="width: 42px; height: 42px;" onclick="addToCart(@item.ProductId)" title="Thêm vào giỏ" @(isOutOfStock ? "disabled" : "")>
                                     <i class="bi bi-cart-plus fs-5"></i>
                                 </button>
                             </div>
@@ -419,6 +462,7 @@
         }
     </div>
 
+    @* SẢN PHẨM BÁN CHẠY *@
     <div class="text-center mb-5 mt-4">
         <h2 class="fw-bold display-6">Sản phẩm bán chạy</h2>
         <p class="text-muted fs-6 mt-2 max-w-75 mx-auto">Những chậu cây được yêu thích và săn đón nhiều nhất, lựa chọn hoàn hảo để thanh lọc không khí và trang trí nhà cửa.</p>
@@ -426,13 +470,21 @@
     </div>
 
     <div class="row g-4">
-        @foreach (var item in Model.Skip(4))
+        @* SỬ DỤNG BIẾN bestSellingProducts ĐÃ ĐƯỢC LỌC Ở TRÊN *@
+        @foreach (var item in bestSellingProducts)
         {
-            <div class="col-md-6 col-lg-3">
-                <div class="card product-card h-100 shadow-sm">
-                    <div class="img-container">
+            bool isOutOfStock = item.Quantity <= 0;
+
+            <div class="col-md-6 col-lg-3" >
+                <div class="card product-card h-100 shadow-sm @(isOutOfStock ? "out-of-stock" : "")" id="product-card-@item.ProductId">
+                    <div class="img-container position-relative">  
                         <span class="badge badge-hot text-uppercase position-absolute top-0 start-0 m-3 shadow-sm rounded-pill">Hot</span>
                         <img src="@item.ImageUrl" alt="@item.ProductName" loading="lazy">
+
+                        @* Overlay báo Hết Hàng *@
+                        <div id="out-of-stock-badge-@item.ProductId" class="out-of-stock-overlay position-absolute top-0 start-0 w-100 h-100 justify-content-center align-items-center @(isOutOfStock ? "d-flex" : "d-none")">
+                            <span class="badge bg-dark text-white fw-bold px-3 py-2 fs-6 shadow-sm" style="letter-spacing: 1px;">TẠM HẾT HÀNG</span>
+                        </div>
                     </div>
 
                     <div class="card-body p-4 d-flex flex-column">
@@ -442,7 +494,7 @@
                         <h5 class="card-title fw-bold text-dark mb-3 product-title">@item.ProductName</h5>
 
                         <div class="product-stats d-flex justify-content-between align-items-center text-muted">
-                            <span><i class="bi bi-box-seam text-success"></i> Kho: <strong>@item.Quantity</strong></span>
+                            <span><i class="bi bi-box-seam text-success"></i> Kho: <strong id="stock-@item.ProductId">@item.Quantity</strong></span>
                             <span><i class="bi bi-cart-check text-warning"></i> Đã bán: <strong>@(item.SoldQuantity)</strong></span>
                         </div>
 
@@ -454,7 +506,7 @@
                                    class="btn btn-outline-success rounded-pill flex-grow-1 fw-bold">
                                     Chi tiết
                                 </a>
-                                <button class="btn btn-cart-icon rounded-circle shadow-sm" style="width: 42px; height: 42px;" onclick="addToCart(@item.ProductId)" title="Thêm vào giỏ">
+                                <button id="btn-add-cart-@item.ProductId" class="btn btn-cart-icon rounded-circle shadow-sm" style="width: 42px; height: 42px;" onclick="addToCart(@item.ProductId)" title="Thêm vào giỏ" @(isOutOfStock ? "disabled" : "")>
                                     <i class="bi bi-cart-plus fs-5"></i>
                                 </button>
                             </div>
@@ -494,12 +546,41 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
+                    // Cập nhật số trên icon giỏ hàng
                     const cartBadge = document.getElementById("cart-count");
                     if(cartBadge) {
                         cartBadge.innerText = data.count;
                         cartBadge.classList.add('animate__animated', 'animate__bounceIn');
                         setTimeout(() => cartBadge.classList.remove('animate__animated', 'animate__bounceIn'), 1000);
                     }
+
+                    // Cập nhật số lượng kho NGAY TRÊN giao diện (NẾU HẾT THÌ LÀM MỜ LUÔN)
+                    const stockElements = document.querySelectorAll(`#stock-${productId}`);
+                    stockElements.forEach(stockElement => {
+                        let currentStock = parseInt(stockElement.innerText);
+                        if (currentStock > 0) {
+                            let newStock = currentStock - 1;
+                            stockElement.innerText = newStock;
+                            stockElement.classList.add('animate__animated', 'animate__headShake', 'text-danger');
+                            setTimeout(() => stockElement.classList.remove('animate__animated', 'animate__headShake', 'text-danger'), 1000);
+
+                            // NẾU MUA XONG MÀ VỀ 0 -> CHUYỂN TRẠNG THÁI HẾT HÀNG
+                            if(newStock === 0) {
+                                // Tìm tất cả các thẻ của sản phẩm này (vì nó có thể xuất hiện ở cả Mới nhất & Bán chạy)
+                                const cards = document.querySelectorAll(`#product-card-${productId}`);
+                                cards.forEach(card => card.classList.add('out-of-stock'));
+
+                                const buttons = document.querySelectorAll(`#btn-add-cart-${productId}`);
+                                buttons.forEach(btn => btn.disabled = true);
+
+                                const overlays = document.querySelectorAll(`#out-of-stock-badge-${productId}`);
+                                overlays.forEach(overlay => {
+                                    overlay.classList.remove('d-none');
+                                    overlay.classList.add('d-flex');
+                                });
+                            }
+                        }
+                    });
 
                     Swal.fire({
                         icon: 'success',

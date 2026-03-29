@@ -2,135 +2,321 @@
 @{
     ViewData["Title"] = Model.ProductName;
     Layout = "~/Views/Shared/_LayoutUser.cshtml";
-    // Giả sử bạn truyền danh sách sản phẩm liên quan qua ViewBag
     var relatedProducts = ViewBag.RelatedProducts as List<lab2.Models.Product> ?? new List<lab2.Models.Product>();
+
+    var imageList = !string.IsNullOrEmpty(Model.ImageUrl)
+                    ? Model.ImageUrl.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToList()
+                    : new List<string> { "/images/default-plant.png" };
 }
 
+@* THƯ VIỆN *@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <style>
+    /* Hiệu ứng xuất hiện cho toàn bộ trang */
+    .product-detail-container {
+        animation: fadeIn 0.8s ease-in-out;
+    }
+
+    /* Nút Quay lại */
+    .btn-back-link {
+        color: #6c757d;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        width: fit-content;
+    }
+
+        .btn-back-link:hover {
+            color: #198754;
+            transform: translateX(-5px);
+        }
+
+    /* Ảnh chính: Thêm hiệu ứng zoom nhẹ khi hover */
     .product-img-main {
-        max-height: 500px;
+        height: 450px;
         object-fit: contain;
         width: 100%;
-        background: #f8f9fa;
+        background: #ffffff;
+        transition: transform 0.5s ease;
     }
 
-    .breadcrumb-item a {
-        color: #198754;
-        text-decoration: none;
+    .carousel-item {
+        overflow: hidden;
     }
 
-    .related-card img {
-        height: 200px;
-        object-fit: cover;
+        .carousel-item:hover .product-img-main {
+            transform: scale(1.05);
+        }
+
+    /* Thumbnails mượt mà hơn */
+    .thumb-bar {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+        justify-content: center;
+        padding: 5px;
+    }
+
+    .thumb-wrapper {
+        width: 70px;
+        height: 70px;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 2px solid #eee;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: #fff;
+    }
+
+        .thumb-wrapper:hover {
+            border-color: #a5d6a7;
+            transform: translateY(-3px);
+        }
+
+        .thumb-wrapper.active {
+            border-color: #198754;
+            box-shadow: 0 4px 12px rgba(25, 135, 84, 0.2);
+            transform: scale(1.1);
+        }
+
+    /* Bảng thông số (Giữ nguyên cấu trúc) */
+    .info-list {
+        list-style: none;
+        padding: 0;
+        margin: 20px 0;
+        border-top: 1px solid #f1f1f1;
+    }
+
+    .info-item {
+        display: flex;
+        padding: 12px 0;
+        border-bottom: 1px solid #f8f9fa;
+        font-size: 0.95rem;
+        transition: background 0.2s ease;
+    }
+
+        .info-item:hover {
+            background-color: #fcfcfc;
+        }
+
+    .info-label {
+        width: 140px;
+        color: #7f8c8d;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+
+    .info-value {
+        color: #2d3436;
+    }
+
+    /* Nút thêm vào giỏ hàng: Hiệu ứng nhấn */
+    .btn-cart-custom {
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .btn-cart-custom:hover:not(.disabled) {
+            background-color: #157347 !important;
+            box-shadow: 0 8px 20px rgba(25, 135, 84, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-cart-custom:active {
+            transform: scale(0.98);
+        }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 </style>
 
-<div class="container mt-4">
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
-            <li class="breadcrumb-item"><a asp-controller="Product" asp-action="Index">Sản phẩm</a></li>
-            <li class="breadcrumb-item active text-truncate" style="max-width: 200px;">@Model.ProductName</li>
-        </ol>
-    </nav>
-
-    <div class="row bg-white shadow-sm rounded-4 overflow-hidden p-0 g-0">
-        <div class="col-md-6 border-end">
-            <img src="@Model.ImageUrl" alt="@Model.ProductName" class="product-img-main p-3" />
-        </div>
-
-        <div class="col-md-6 p-4 p-lg-5 d-flex flex-column">
-            <div>
-                <span class="badge bg-success-subtle text-success mb-2 px-3 py-2">@Model.Category?.CategoryName</span>
-                <h2 class="fw-bold text-dark mb-3">@Model.ProductName</h2>
-
-                <div class="d-flex align-items-center mb-4">
-                    <h3 class="text-danger fw-bold mb-0 me-3">@Model.Price.ToString("N0") đ</h3>
-                    @if (Model.Quantity > 0)
-                    {
-                        <span class="text-success small"><i class="bi bi-check-circle-fill"></i> Còn hàng (@Model.Quantity)</span>
-                    }
-                    else
-                    {
-                        <span class="text-danger small"><i class="bi bi-x-circle-fill"></i> Hết hàng</span>
-                    }
-                </div>
-
-                <div class="mb-4">
-                    <h6 class="fw-bold text-uppercase small text-muted">Mô tả sản phẩm:</h6>
-                    <p class="text-secondary lh-base">@Model.Description</p>
-                </div>
-            </div>
-
-            <div class="mt-auto pt-4 border-top">
-                <div class="row g-2">
-                    <div class="col-8">
-                        @if (Model.Quantity > 0)
-                        {
-                            <button class="btn btn-success w-100 py-3 fw-bold rounded-3" onclick="addToCart(@Model.ProductId)">
-                                <i class="bi bi-cart-plus-fill me-2"></i> THÊM VÀO GIỎ HÀNG
-                            </button>
-                        }
-                        else
-                        {
-                            <button class="btn btn-secondary w-100 py-3 fw-bold rounded-3 disabled">HẾT HÀNG</button>
-                        }
-                    </div>
-                    <div class="col-4">
-                        <a asp-action="Index" class="btn btn-outline-secondary w-100 py-3 rounded-3">TRỞ LẠI</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="container mt-4 product-detail-container">
+    <div class="back-nav">
+        <a href="javascript:history.back()" class="btn-back-link">
+            <i class="bi bi-chevron-left me-1"></i> Quay lại
+        </a>
     </div>
 
-    @if (relatedProducts.Any())
-    {
-        <div class="mt-5 mb-5">
-            <h4 class="fw-bold mb-4 border-start border-4 border-success ps-3">Sản phẩm tương tự</h4>
-            <div class="row row-cols-2 row-cols-md-4 g-3">
-                @foreach (var item in relatedProducts)
-                {
-                    <div class="col">
-                        <div class="card h-100 shadow-sm border-0 related-card">
-                            <a asp-action="Details" asp-route-id="@item.ProductId">
-                                <img src="@item.ImageUrl" class="card-img-top" alt="...">
-                            </a>
-                            <div class="card-body p-2 text-center">
-                                <h6 class="text-truncate mb-1">@item.ProductName</h6>
-                                <p class="text-danger fw-bold small mb-0">@item.Price.ToString("N0") đ</p>
-                            </div>
+    <div class="row bg-white shadow-sm rounded-4 overflow-hidden p-0 g-0 border mt-3">
+        <div class="col-md-6 border-end p-4 bg-white text-center">
+            <div id="productCarousel" class="carousel slide" data-bs-ride="false">
+                <div class="carousel-inner rounded-3">
+                    @for (int i = 0; i < imageList.Count; i++)
+                    {
+                        <div class="carousel-item @(i == 0 ? "active" : "")">
+                            <img src="@imageList[i]" class="product-img-main" alt="@Model.ProductName">
                         </div>
+                    }
+                </div>
+                @if (imageList.Count > 1)
+                {
+                    <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev" style="filter: invert(1)">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next" style="filter: invert(1)">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>
+                }
+            </div>
+
+            <div class="thumb-bar">
+                @for (int i = 0; i < imageList.Count; i++)
+                {
+                    <div class="thumb-wrapper @(i == 0 ? "active" : "")" onclick="changeSlide(@i)" id="thumb-container-@i">
+                        <img src="@imageList[i]" id="thumb-img-@i" class="w-100 h-100" style="object-fit: cover;" />
                     </div>
                 }
             </div>
         </div>
-    }
+
+        <div class="col-md-6 p-4 p-lg-5 d-flex flex-column bg-white">
+            <div>
+                <span class="badge bg-success-subtle text-success mb-2 px-3 py-2 rounded-pill fw-bold animate__animated animate__fadeInDown">
+                    <i class="bi bi-tag-fill me-1"></i> @Model.Category?.CategoryName
+                </span>
+                <h1 class="fw-bold text-dark mb-1" style="font-size: 2rem;">@Model.ProductName</h1>
+
+                <div class="d-flex align-items-center mb-4">
+                    <h2 class="text-danger fw-bold mb-0 me-3">@Model.Price.ToString("N0") đ</h2>
+                    <span id="stock-container">
+                        @if (Model.Quantity > 0)
+                        {
+                            <span class="badge bg-light text-success border border-success-subtle px-2 py-1">
+                                <i class="bi bi-box-seam me-1"></i> Sẵn có: <strong id="stock-@Model.ProductId">@Model.Quantity</strong>
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-light text-danger border border-danger-subtle px-2 py-1">
+                                <i class="bi bi-x-circle me-1"></i> Hết hàng
+                            </span>
+                        }
+                    </span>
+                </div>
+
+                @* GIỮ NGUYÊN THÔNG SỐ *@
+                <ul class="info-list">
+                    <li class="info-item">
+                        <span class="info-label">Tên khoa học:</span>
+                        <span class="info-value italic">@Model.ProductName L.</span>
+                    </li>
+                    <li class="info-item">
+                        <span class="info-label">Tên gọi khác:</span>
+                        <span class="info-value">Cây để bàn, cây phong thủy</span>
+                    </li>
+                    <li class="info-item">
+                        <span class="info-label">Quy cách:</span>
+                        <span class="info-value">Cao: 20 – 45 cm</span>
+                    </li>
+                    <li class="info-item">
+                        <span class="info-label">Độ khó:</span>
+                        <span class="info-value text-success fw-bold">Dễ chăm sóc</span>
+                    </li>
+                    <li class="info-item">
+                        <span class="info-label">Ánh sáng:</span>
+                        <span class="info-value">Tán xạ / Chịu bóng tốt</span>
+                    </li>
+                    <li class="info-item">
+                        <span class="info-label">Nhu cầu nước:</span>
+                        <span class="info-value">2 – 3 lần/tháng</span>
+                    </li>
+                </ul>
+
+                @* GIỮ NGUYÊN MÔ TẢ *@
+                <div class="mb-4 mt-3">
+                    <h6 class="fw-bold text-dark small"><i class="bi bi-info-circle me-1"></i> MÔ TẢ NGẮN:</h6>
+                    <p class="text-secondary lh-base small mb-0">@Model.Description</p>
+                </div>
+            </div>
+
+            <div class="mt-auto">
+                <button id="btn-add-detail-@Model.ProductId"
+                        class="btn btn-success btn-lg w-100 py-3 fw-bold rounded-3 shadow-sm btn-cart-custom @(Model.Quantity <= 0 ? "disabled" : "")"
+                        onclick="addToCart(@Model.ProductId)"
+                        @(Model.Quantity <= 0 ? "disabled" : "")>
+                    <i class="bi bi-cart-plus-fill me-2 fs-5"></i>
+                    <span id="btn-text-@Model.ProductId">@(Model.Quantity > 0 ? "THÊM VÀO GIỎ HÀNG" : "HẾT HÀNG")</span>
+                </button>
+                <p class="text-center mt-3 text-muted small">
+                    <i class="bi bi-shield-check text-success"></i> Cam kết cây tươi khỏe & đúng mô tả
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
+    function changeSlide(index) {
+        var myCarousel = document.querySelector('#productCarousel');
+        var carousel = bootstrap.Carousel.getOrCreateInstance(myCarousel);
+        carousel.to(index);
+    }
+
+    document.getElementById('productCarousel').addEventListener('slide.bs.carousel', function (e) {
+        document.querySelectorAll('.thumb-wrapper').forEach(el => el.classList.remove('active'));
+        const targetThumb = document.getElementById('thumb-container-' + e.to);
+        if (targetThumb) targetThumb.classList.add('active');
+    });
+
     function addToCart(productId) {
-        fetch('/Cart/AddToCart', {
+        const btnText = document.getElementById(`btn-text-${productId}`);
+        const originalText = btnText.innerText;
+        btnText.innerText = "Đang xử lý...";
+
+        fetch('@Url.Action("AddToCart", "Cart")', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: 'productId=' + productId + '&quantity=1'
+            body: `productId=${productId}&quantity=1`
         })
         .then(res => res.json())
         .then(data => {
+            btnText.innerText = originalText;
             if (data.success) {
-                // Cập nhật badge giỏ hàng trên Header (nếu có id="cart-count")
-                const cartCount = document.getElementById("cart-count");
-                if(cartCount) cartCount.innerText = data.count;
-                showToast("🛒 Đã thêm vào giỏ hàng!");
+                // Cập nhật số lượng giỏ hàng trên Header (nếu có)
+                const cartBadge = document.getElementById("cart-count");
+                if(cartBadge) {
+                    cartBadge.innerText = data.count;
+                    cartBadge.classList.add('animate__animated', 'animate__bounceIn');
+                    setTimeout(() => cartBadge.classList.remove('animate__animated', 'animate__bounceIn'), 1000);
+                }
+
+                // Cập nhật kho nhanh
+                const stockElement = document.getElementById(`stock-${productId}`);
+                if (stockElement) {
+                    let newStock = parseInt(stockElement.innerText) - 1;
+                    stockElement.innerText = newStock;
+                    if (newStock <= 0) location.reload();
+                }
+
+                // THÔNG BÁO CŨ (Toast thành công)
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã thêm vào giỏ!',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    background: '#f0f9eb',
+                    showClass: { popup: 'animate__animated animate__fadeInRight' },
+                    hideClass: { popup: 'animate__animated animate__fadeOutRight' }
+                });
             }
         });
-    }
-
-    function showToast(message) {
-        let toast = document.createElement("div");
-        toast.innerText = message;
-        toast.style.cssText = "position:fixed; top:80px; right:20px; background:#198754; color:white; padding:12px 25px; border-radius:30px; box-shadow:0 4px 15px rgba(0,0,0,0.2); z-index:10000; font-weight:bold;";
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 2500);
     }
 </script>

@@ -15,7 +15,7 @@ namespace lab2.Models
 
         [Display(Name = "Xác nhận hủy")]
         Cancelled,
-        [Display(Name = "Hủy đơn hàng")]
+        [Display(Name = "Hủy thành công")]
         CancelRequested
 
     }
