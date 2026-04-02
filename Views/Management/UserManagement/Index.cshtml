@@ -5,6 +5,9 @@
 }
 
 <div class="container py-5">
+    @* Token bảo mật để Ajax Delete có thể lấy được *@
+    @Html.AntiForgeryToken()
+
     @* --- HEADER --- *@
     <div class="row align-items-center mb-4 animate__animated animate__fadeIn">
         <div class="col-md-6 d-flex align-items-center">
@@ -17,7 +20,9 @@
             </div>
         </div>
         <div class="col-md-6 text-md-end mt-3 mt-md-0">
-            <button class="btn btn-success rounded-pill px-4 shadow-sm fw-bold">
+            <button class="btn btn-success rounded-pill px-4 shadow-sm fw-bold"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalCreateUser">
                 <i class="bi bi-person-plus-fill me-2"></i> THÊM MỚI
             </button>
         </div>
@@ -26,7 +31,6 @@
     @* --- TABLE CARD --- *@
     <div class="card shadow-sm rounded-4 border-0 overflow-hidden">
         <div class="table-responsive" style="overflow-x: hidden;">
-            @* Chốt chặn cuối cùng để ẩn scroll ngang *@
             <table class="table table-hover align-middle mb-0 custom-table">
                 <thead class="bg-light border-bottom">
                     <tr class="text-muted small text-uppercase fw-bold">
@@ -66,14 +70,17 @@
                             </td>
                             <td class="text-end pe-4">
                                 <div class="d-flex justify-content-end gap-2">
-                                    <a asp-action="Edit" asp-route-id="@user.Id" class="btn-action edit" title="Sửa">
-                                        <i class="bi bi-pencil-square"></i>
+                                    @* Nút Sửa: Chuyển hướng sang trang Edit riêng *@
+                                    <a asp-controller="UserManagement" asp-action="Edit" asp-route-id="@user.Id" class="btn-action edit" title="Xem hồ sơ">
+                                        <i class="bi bi-person-bounding-box"></i>
                                     </a>
-                                    <form asp-action="Delete" asp-route-id="@user.Id" method="post" class="d-inline" onsubmit="return confirm('Xóa tài khoản này?')">
-                                        <button type="submit" class="btn-action delete" title="Xóa">
-                                            <i class="bi bi-trash3"></i>
-                                        </button>
-                                    </form>
+                                    @* Nút Xóa: Gọi Ajax xóa tại chỗ *@
+                                    <button class="btn-action delete btn-delete-user"
+                                            data-id="@user.Id"
+                                            data-username="@user.UserName"
+                                            title="Xóa">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -84,15 +91,17 @@
     </div>
 </div>
 
+@* Nạp Modal Create *@
+@await Html.PartialAsync("~/Views/Management/UserManagement/Create.cshtml");
+
 @section Styles {
     <style>
-        /* Khóa bảng không cho tự giãn rộng quá mức */
+        /* CSS của bạn giữ nguyên vì đã rất đẹp rồi */
         .custom-table {
             table-layout: fixed;
             width: 100%;
         }
 
-        /* Avatar */
         .avatar-circle {
             width: 38px;
             height: 38px;
@@ -105,14 +114,12 @@
             font-weight: bold;
         }
 
-        /* Tự động cắt chữ nếu quá dài thay vì đẩy bảng rộng ra */
         .text-truncate {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
 
-        /* Nút thao tác tối giản */
         .btn-action {
             width: 32px;
             height: 32px;
@@ -147,4 +154,89 @@
             font-size: 0.7rem;
         }
     </style>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function () {
+
+            // --- 1. THÔNG BÁO TỪ SERVER (TempData) ---
+            @if (TempData["Success"] != null)
+            {
+                    <text>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: '@Html.Raw(TempData["Success"])',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                    </text>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                    <text>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi hệ thống!',
+                        html: '<div style="text-align: left;">@Html.Raw(TempData["Error"])</div>',
+                        confirmButtonColor: '#198754'
+                    });
+                    </text>
+            }
+
+            // Tự động mở lại Modal Create nếu có lỗi để người dùng sửa
+            @if (TempData["OpenCreateModal"] != null)
+            {
+                    <text>
+                    var myModal = new bootstrap.Modal(document.getElementById('modalCreateUser'));
+                    myModal.show();
+                    </text>
+            }
+
+            // --- 2. XỬ LÝ XÓA NGƯỜI DÙNG (AJAX) ---
+            $(document).on('click', '.btn-delete-user', function (e) {
+                e.preventDefault();
+                    const userId = $(this).attr('data-id');
+                    const userName = $(this).attr('data-username');
+                    const token = $('input[name="__RequestVerificationToken"]').val();
+                    if (!userId) return;
+                Swal.fire({
+                    title: 'Xác nhận xóa?',
+                    text: `Tài khoản "${userName}" sẽ biến mất vĩnh viễn!`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    confirmButtonText: 'Đồng ý, xóa!',
+                    cancelButtonText: 'Hủy',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Đang xử lý...',
+                            didOpen: () => { Swal.showLoading(); }
+                        });
+
+                        $.ajax({
+                            url: '@Url.Action("DeleteConfirmed", "UserManagement")',
+                            type: 'POST',
+                            data: {
+                                id: userId,
+                                __RequestVerificationToken: token
+                            },
+                            success: function (res) {
+                                // Reload để hiện thông báo TempData từ Controller
+                                location.reload();
+                            },
+                            error: function () {
+                                Swal.fire('Lỗi!', 'Không thể thực hiện tác vụ này.', 'error');
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
 }

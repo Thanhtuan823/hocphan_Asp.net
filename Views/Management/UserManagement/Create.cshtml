@@ -1,5 +1,233 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@* File: Views/Management/UserManagement/Create.cshtml *@
+
+<div class="modal fade" id="modalCreateUser" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+
+            @* --- Header --- *@
+            <div class="modal-header border-0 p-4" style="background: linear-gradient(135deg, #f8fffb 0%, #e8f5e9 100%);">
+                <div class="d-flex align-items-center">
+                    <div class="bg-success text-white p-3 rounded-circle me-3 shadow-sm">
+                        <i class="bi bi-person-plus-fill fs-5"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold text-success mb-0">TẠO TÀI KHOẢN MỚI</h5>
+                        <small class="text-muted">Cấp quyền truy cập hệ thống</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            @* --- Form --- *@
+            <form id="formCreateUser" asp-controller="UserManagement" asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4 pt-2">
+                    <div class="row g-3">
+                        @* Email *@
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-secondary text-uppercase">Địa chỉ Email</label>
+                            <div class="input-group shadow-sm rounded-3">
+                                <span class="input-group-text bg-white border-end-0 text-success"><i class="bi bi-envelope"></i></span>
+                                <input id="emailInput" name="Email" type="email" class="form-control border-start-0 ps-0" required placeholder="example@gmail.com" style="background-color: #fafafa;">
+                            </div>
+                            @* Cảnh báo gõ nhầm Email *@
+                            <div id="emailFeedback" class="small mt-1 d-none animated fadeIn">
+                                @* Nội dung thông báo sẽ được chèn bằng JS *@
+                            </div>
+                        </div>
+
+                        @* Tên đăng nhập *@
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-secondary text-uppercase">Tên đăng nhập</label>
+                            <input name="UserName" class="form-control border-0 shadow-sm" required placeholder="username..." style="background-color: #f0f2f5;">
+                        </div>
+
+                        @* Số điện thoại *@
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-secondary text-uppercase">Số điện thoại</label>
+                            <input name="PhoneNumber" type="tel" class="form-control border-0 shadow-sm" placeholder="09xx..." style="background-color: #f0f2f5;">
+                        </div>
+
+                        <div class="col-12 my-2">
+                            <div style="height: 1px; background: linear-gradient(to right, transparent, #e0e0e0, transparent);"></div>
+                        </div>
+
+                        @* Mật khẩu *@
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-secondary text-uppercase">Mật khẩu</label>
+                            <div class="input-group shadow-sm rounded-3">
+                                <input id="newPassword" name="Password" type="password" class="form-control border-0" required placeholder="Mật khẩu mới" style="background-color: #f0f2f5;">
+                                <span class="input-group-text border-0 toggle-password" data-target="#newPassword" style="background-color: #f0f2f5; cursor: pointer;">
+                                    <i class="bi bi-eye text-muted"></i>
+                                </span>
+                            </div>
+                            @* Thanh độ mạnh mật khẩu *@
+                            <div class="progress mt-2 d-none" id="passProgress" style="height: 4px;">
+                                <div id="passStrengthBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <div id="passFeedback" class="small mt-1 d-none" style="font-size: 0.75rem;"></div>
+                        </div>
+
+                        @* Xác nhận mật khẩu *@
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-secondary text-uppercase">Xác nhận</label>
+                            <div class="input-group shadow-sm rounded-3">
+                                <input id="confirmPassword" name="ConfirmPassword" type="password" class="form-control border-0" required placeholder="Nhập lại" style="background-color: #f0f2f5;">
+                                <span class="input-group-text border-0 toggle-password" data-target="#confirmPassword" style="background-color: #f0f2f5; cursor: pointer;">
+                                    <i class="bi bi-eye text-muted"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info border-0 mt-4 py-2 px-3 d-flex align-items-center" style="border-radius: 12px; background-color: #e3f2fd; color: #0d47a1;">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <span style="font-size: 0.82rem;">Mật khẩu tối thiểu 6 ký tự, gồm chữ hoa, thường và số.</span>
+                    </div>
+                </div>
+
+                @* --- Footer --- *@
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-light px-4 rounded-pill fw-bold text-secondary" data-bs-dismiss="modal">HỦY</button>
+                    <button type="submit" id="btnSubmitCreate" class="btn btn-success px-5 py-2 rounded-pill fw-bold shadow-sm">
+                        HOÀN TẤT <i class="bi bi-check-lg ms-1"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    #formCreateUser .form-control {
+        transition: all 0.3s ease;
+        padding: 0.6rem 1rem;
+        border-radius: 12px;
+    }
+
+    #formCreateUser .input-group {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    #formCreateUser .form-control:focus {
+        background-color: #ffffff !important;
+        box-shadow: none !important;
+    }
+
+    #formCreateUser .input-group:focus-within {
+        box-shadow: 0 4px 12px rgba(25, 135, 84, 0.15) !important;
+        transform: translateY(-1px);
+        transition: all 0.3s ease;
+    }
+
+    #formCreateUser .btn-success {
+        background: linear-gradient(135deg, #198754 0%, #2ecc71 100%);
+        border: none;
+        transition: all 0.3s;
+    }
+
+    #formCreateUser .btn-success:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 15px rgba(25, 135, 84, 0.3);
+    }
+
+    .animated { animation-duration: 0.3s; fill-mode: both; }
+    @@keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+    .fadeIn { animation-name: fadeIn; }
+</style>
+
+<script>
+    // 1. Logic ẩn/hiện mật khẩu
+    document.querySelectorAll('.toggle-password').forEach(button => {
+        button.addEventListener('click', function() {
+            const targetSelector = this.getAttribute('data-target');
+            const input = document.querySelector(targetSelector);
+            const icon = this.querySelector('i');
+            
+            input.type = input.type === 'password' ? 'text' : 'password';
+            icon.classList.toggle('bi-eye');
+            icon.classList.toggle('bi-eye-slash');
+        });
+    });
+
+    // 2. Cảnh báo gõ nhầm tên miền Email phổ biến
+    const emailInput = document.getElementById('emailInput');
+    const emailFeedback = document.getElementById('emailFeedback');
+
+    emailInput.addEventListener('input', function() {
+        const email = this.value.toLowerCase();
+        const typos = ['gmai.com', 'gnail.com', 'gamil.com', 'hotmai.com', 'outlok.com'];
+        const domain = email.split('@@')[1];
+
+        if (typos.includes(domain)) {
+            emailFeedback.classList.remove('d-none', 'text-danger');
+            emailFeedback.classList.add('text-warning');
+            emailFeedback.innerHTML = `<i class="bi bi-lightbulb-fill"></i> Có vẻ bạn gõ nhầm? Ý bạn là <b>${domain.replace('mai.', 'mail.').replace('lok', 'look')}</b>?`;
+        } else {
+            emailFeedback.classList.add('d-none');
+        }
+    });
+
+    // 3. Kiểm tra độ mạnh mật khẩu (Real-time)
+    const passwordInput = document.getElementById('newPassword');
+    const passFeedback = document.getElementById('passFeedback');
+    const passBar = document.getElementById('passStrengthBar');
+    const passProgress = document.getElementById('passProgress');
+
+    passwordInput.addEventListener('input', function() {
+        const val = this.value;
+        if(val === "") {
+            passProgress.classList.add('d-none');
+            passFeedback.classList.add('d-none');
+            return;
+        }
+
+        passProgress.classList.remove('d-none');
+        passFeedback.classList.remove('d-none');
+
+        let strength = 0;
+        if (val.length >= 6) strength += 25;
+        if (val.match(/[A-Z]/)) strength += 25;
+        if (val.match(/[0-9]/)) strength += 25;
+        if (val.match(/[^A-Za-z0-9]/)) strength += 25;
+
+        passBar.style.width = strength + '%';
+        
+        if (strength <= 25) {
+            passBar.className = "progress-bar bg-danger";
+            passFeedback.innerHTML = "❌ Mật khẩu quá yếu";
+            passFeedback.className = "small text-danger mt-1";
+        } else if (strength <= 75) {
+            passBar.className = "progress-bar bg-warning";
+            passFeedback.innerHTML = "⚠️ Mật khẩu trung bình";
+            passFeedback.className = "small text-warning mt-1";
+        } else {
+            passBar.className = "progress-bar bg-success";
+            passFeedback.innerHTML = "✅ Mật khẩu mạnh";
+            passFeedback.className = "small text-success mt-1";
+        }
+    });
+
+    // 4. Hiệu ứng Loading và Validation cuối trước khi Submit
+    document.getElementById('formCreateUser').addEventListener('submit', function (e) {
+        const pass = document.getElementById('newPassword').value;
+        const confirm = document.getElementById('confirmPassword').value;
+
+        if (pass !== confirm) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi mật khẩu',
+                text: 'Mật khẩu xác nhận không khớp!',
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+
+        const btn = document.getElementById('btnSubmitCreate');
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> ĐANG XỬ LÝ...';
+        btn.classList.add('disabled');
+        btn.style.pointerEvents = 'none';
+    });
+</script>

@@ -1,29 +1,99 @@
-﻿@model Microsoft.AspNetCore.Identity.IdentityUser
+﻿@model lab2.Models.UserWithRoles
 @{
-    ViewData["Title"] = "Xóa người dùng";
+    ViewData["Title"] = "Xác nhận xóa tài khoản";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<div class="container mt-4 animate__animated animate__fadeIn">
-    <div class="card border-0 shadow-sm rounded-4 p-4">
-        <h2 class="text-danger fw-bold mb-3"><i class="bi bi-exclamation-triangle-fill"></i> Xác nhận xóa</h2>
-        <p class="fs-5">Bạn có chắc chắn muốn xóa tài khoản <strong>@Model.UserName</strong> không?</p>
-        <p class="text-muted small">Lưu ý: Hành động này không thể hoàn tác. Mọi dữ liệu liên quan đến người dùng này sẽ bị mất.</p>
+<div class="container py-5 animate__animated animate__fadeIn">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            @* --- CARD XÁC NHẬN --- *@
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-danger text-white text-center py-4 border-0">
+                    <div class="mb-2">
+                        <i class="bi bi-person-x-fill display-1"></i>
+                    </div>
+                    <h3 class="fw-bold mb-0">XÁC NHẬN XÓA</h3>
+                </div>
 
-        <hr />
+                <div class="card-body p-5 text-center">
+                    <p class="fs-5 text-dark mb-1">Bạn đang thực hiện xóa tài khoản:</p>
+                    <h2 class="fw-bold text-danger mb-4">@Model.UserName</h2>
 
-        <form asp-controller="UserManagement" asp-action="DeleteConfirmed" method="post">
-            @Html.AntiForgeryToken()
-            <input type="hidden" asp-for="Id" name="id" />
+                    <div class="alert alert-warning border-0 rounded-3 small shadow-sm mb-4">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <strong>Lưu ý:</strong> Hành động này sẽ xóa vĩnh viễn dữ liệu và không thể hoàn tác sau khi xác nhận.
+                    </div>
 
-            <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-danger px-4 rounded-pill fw-bold shadow-sm">
-                    <i class="bi bi-trash"></i> XÁC NHẬN XÓA
-                </button>
-                <a asp-action="Index" class="btn btn-light px-4 rounded-pill fw-bold border">
-                    HỦY
-                </a>
+                    <form id="deleteConfirmForm" asp-controller="UserManagement" asp-action="DeleteConfirmed" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                            <a asp-action="Index" class="btn btn-light btn-lg px-5 rounded-pill border fw-bold">
+                                <i class="bi bi-arrow-left me-2"></i> QUAY LẠI
+                            </a>
+                            <button type="submit" class="btn btn-danger btn-lg px-5 rounded-pill fw-bold shadow">
+                                <i class="bi bi-trash3-fill me-2"></i> XÓA NGAY
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </form>
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    @* Nạp thư viện SweetAlert2 *@
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Sử dụng sự kiện thuần của trình duyệt để chắc chắn script chạy sau khi DOM nạp xong
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // Lấy đúng ID của Form xóa
+            const deleteForm = document.getElementById('deleteConfirmForm');
+
+            if (deleteForm) {
+                deleteForm.addEventListener('submit', function (e) {
+                    // 1. Chặn việc gửi form ngay lập tức để hiện thông báo
+                    e.preventDefault();
+
+                    const form = this;
+
+                    // 2. Hiển thị popup xác nhận "xịn"
+                    Swal.fire({
+                        title: 'Xác nhận xóa tài khoản?',
+                        text: "Dữ liệu của người dùng '@Model.UserName' sẽ bị xóa vĩnh viễn và không thể khôi phục!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc3545', // Màu đỏ Danger
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Vâng, tôi chắc chắn!',
+                        cancelButtonText: 'Hủy bỏ',
+                        reverseButtons: true,
+                        focusCancel: true
+                    }).then((result) => {
+                        // 3. Nếu người dùng bấm nút "Vâng"
+                        if (result.isConfirmed) {
+
+                            // Hiển thị hiệu ứng Loading để Admin biết hệ thống đang làm việc
+                            Swal.fire({
+                                title: 'Đang xử lý...',
+                                html: 'Vui lòng chờ trong giây lát',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+
+                            // 4. Thực hiện gửi form chính thức lên Server
+                            form.submit();
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+}

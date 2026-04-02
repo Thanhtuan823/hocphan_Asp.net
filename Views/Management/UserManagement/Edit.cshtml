@@ -1,80 +1,120 @@
-﻿@model lab2.Models.UserWithRoles
+﻿@model lab2.Models.UserProfileViewModel
 @{
-    ViewData["Title"] = "Chỉnh sửa hồ sơ";
+    ViewData["Title"] = "Admin - Chỉnh sửa hồ sơ";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-8">
-            @* --- NÚT QUAY LẠI --- *@
-            <div class="mb-4">
-                <a asp-action="Index" class="text-decoration-none text-muted fw-bold small d-inline-flex align-items-center">
-                    <i class="bi bi-arrow-left-circle-fill fs-4 me-2 text-success"></i> QUAY LẠI DANH SÁCH
-                </a>
-            </div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
-            @* --- CARD HỒ SƠ --- *@
-            <div class="card shadow-lg rounded-4 border-0 overflow-hidden animate__animated animate__fadeInUp">
-                <div class="card-header bg-success py-5 text-center position-relative">
-                    <div class="avatar-large mx-auto shadow-sm">
-                        @(Model.UserName?.Substring(0, 1).ToUpper() ?? "U")
-                    </div>
-                    <h4 class="text-white fw-bold mt-3 mb-0 text-uppercase">Hồ sơ người dùng</h4>
-                    <p class="text-white-50 small mb-0">ID: @Model.Id</p>
-                </div>
+<style>
+    .profile-wrapper {
+        background: #f4f7f6;
+        min-height: 100vh;
+    }
 
-                <div class="card-body p-4 p-md-5">
-                    @* Thông báo lỗi hệ thống *@
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger border-0 rounded-3 small text-center"></div>
+    .main-profile-card {
+        border-radius: 25px;
+        overflow: hidden;
+        border: none;
+        background: #fff;
+    }
 
-                    <form asp-action="Edit" method="post">
+    .profile-sidebar {
+        background: linear-gradient(180deg, #198754 0%, #0d4d30 100%);
+    }
+
+    .form-control-custom {
+        border: 1px solid #e9ecef;
+        background-color: #f8f9fa;
+        padding: 12px 15px;
+        border-radius: 12px;
+        width: 100%;
+        transition: all 0.3s;
+    }
+
+        .form-control-custom:focus {
+            border-color: #198754;
+            background-color: #fff;
+            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.1);
+            outline: none;
+        }
+
+    .form-label-custom {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 5px;
+    }
+</style>
+
+<div class="profile-wrapper py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-11 col-xl-10">
+                <div class="main-profile-card shadow-lg animate__animated animate__zoomIn">
+                    <form id="profileForm" asp-action="Edit" method="post">
                         @Html.AntiForgeryToken()
+                        @* Quan trọng: Giữ ID của User cần sửa *@
+                        <input type="hidden" asp-for="User.Id" />
+                        <input type="hidden" asp-for="OrderAddress.UserId" />
 
-                        @* Các trường ẩn để đảm bảo dữ liệu gửi về Controller đầy đủ *@
-                        <input type="hidden" asp-for="Id" />
-                        <input type="hidden" asp-for="Email" />
-
-                        @* 1. Email (Read-only) *@
-                        <div class="mb-4">
-                            <label class="form-label fw-bold text-muted small ms-2">ĐỊA CHỈ EMAIL (Dùng để đăng nhập)</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-secondary-subtle border-end-0 rounded-pill-start px-3">
-                                    <i class="bi bi-envelope-lock-fill text-muted"></i>
-                                </span>
-                                <input asp-for="Email" class="form-control bg-secondary-subtle border-start-0 rounded-pill-end py-2 shadow-none text-muted" readonly />
+                        <div class="row g-0">
+                            <div class="col-md-4 profile-sidebar text-white text-center p-5">
+                                <div class="avatar-container mb-4">
+                                    <img src="https://ui-avatars.com/api/?name=@Model.User.UserName&background=fff&color=198754&size=150" class="rounded-circle shadow-lg border border-4 border-white-50">
+                                </div>
+                                <h3 class="fw-bold mb-1">@Model.User.UserName</h3>
+                                <p class="small opacity-75">Hồ sơ người dùng</p>
                             </div>
-                        </div>
 
-                        @* 2. Username (Edit) *@
-                        <div class="mb-4">
-                            <label class="form-label fw-bold text-muted small ms-2 text-success">TÊN HIỂN THỊ (NICKNAME)</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0 rounded-pill-start px-3">
-                                    <i class="bi bi-person-circle text-success"></i>
-                                </span>
-                                <input asp-for="UserName" class="form-control border-start-0 rounded-pill-end py-2 shadow-none" placeholder="Nhập tên mới..." required />
+                            <div class="col-md-8 p-4 p-md-5 bg-white">
+                                <h5 class="fw-bold text-success mb-4"><i class="bi bi-person-badge me-2"></i>THÔNG TIN CƠ BẢN</h5>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom small">Tên tài khoản</label>
+                                        <input asp-for="User.UserName" class="form-control-custom">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom small">Email</label>
+                                        <input asp-for="User.Email" class="form-control-custom" required>
+                                    </div>
+                                </div>
+
+                                <h5 class="fw-bold text-success mb-4 mt-5"><i class="bi bi-truck me-2"></i>ĐỊA CHỈ & LIÊN HỆ</h5>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom small">Người nhận hàng</label>
+                                        <input asp-for="OrderAddress.Name" class="form-control-custom">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom small">Số điện thoại</label>
+                                        <input asp-for="OrderAddress.PhoneNumber" class="form-control-custom">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label-custom small">Địa chỉ chi tiết</label>
+                                    <input asp-for="OrderAddress.Address1" class="form-control-custom">
+                                </div>
+
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom small">Thành phố</label>
+                                        <input asp-for="OrderAddress.City" class="form-control-custom">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom small">Mã Zip</label>
+                                        <input asp-for="OrderAddress.Zip" class="form-control-custom">
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-2 justify-content-end mt-5">
+                                    <a asp-controller="UserManagement" asp-action="Index" class="btn btn-light px-4 rounded-pill border">Hủy bỏ</a>
+                                    <button type="submit" class="btn btn-success px-5 rounded-pill shadow-sm fw-bold">LƯU THAY ĐỔI</button>
+                                </div>
                             </div>
-                            <span asp-validation-for="UserName" class="text-danger small ms-2"></span>
-                        </div>
-
-                        @* 3. Số điện thoại (Edit) *@
-                        <div class="mb-5">
-                            <label class="form-label fw-bold text-muted small ms-2 text-success">SỐ ĐIỆN THOẠI</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0 rounded-pill-start px-3">
-                                    <i class="bi bi-telephone-fill text-success"></i>
-                                </span>
-                                <input asp-for="PhoneNumber" class="form-control border-start-0 rounded-pill-end py-2 shadow-none" placeholder="0xxx.xxx.xxx" />
-                            </div>
-                            <span asp-validation-for="PhoneNumber" class="text-danger small ms-2"></span>
-                        </div>
-
-                        @* Nút lưu dữ liệu *@
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-success rounded-pill py-3 fw-bold shadow-sm btn-hover-scale">
-                                <i class="bi bi-floppy-fill me-2"></i> LƯU THÔNG TIN HỒ SƠ
-                            </button>
                         </div>
                     </form>
                 </div>
@@ -83,46 +123,21 @@
     </div>
 </div>
 
-@section Styles {
-    <style>
-        .avatar-large {
-            width: 90px;
-            height: 90px;
-            background-color: #fff;
-            color: #198754;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            font-size: 2.2rem;
-            font-weight: 800;
-            border: 4px solid rgba(255,255,255,0.4);
-        }
-
-        .rounded-pill-start {
-            border-radius: 50px 0 0 50px !important;
-            border-color: #e9ecef;
-        }
-
-        .rounded-pill-end {
-            border-radius: 0 50px 50px 0 !important;
-            border-color: #e9ecef;
-        }
-
-        .bg-secondary-subtle {
-            background-color: #f1f3f5 !important;
-        }
-
-        .btn-hover-scale {
-            transition: transform 0.2s;
-        }
-
-            .btn-hover-scale:hover {
-                transform: scale(1.02);
-            }
-
-        .form-control:focus {
-            border-color: #198754 !important;
-        }
-    </style>
-}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $(document).ready(function () {
+        $('#profileForm').on('submit', function (e) {
+            e.preventDefault();
+            var form = $(this);
+            $.post(form.attr('action'), form.serialize(), function (res) {
+                if (res.success) {
+                    Swal.fire({ icon: 'success', title: 'Thành công!', text: res.message, timer: 1500, showConfirmButton: false })
+                    .then(() => { window.location.href = '@Url.Action("Index", "UserManagement")'; });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Lỗi', text: res.message });
+                }
+            });
+        });
+    });
+</script>
