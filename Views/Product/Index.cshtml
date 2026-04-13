@@ -328,7 +328,7 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // 1. Hàm Lọc và Sắp xếp (Đồng bộ từ file mới)
+        // 1. Hàm Lọc và Sắp xếp 
         function filterAndSort() {
             const keyword = document.getElementById("searchInput").value.toLowerCase().trim();
             const sortVal = document.getElementById("sortOption").value;
@@ -367,7 +367,7 @@
             document.getElementById("no-results").classList.toggle("d-none", visibleCount > 0);
         }
 
-        // 2. Hàm Thêm vào giỏ & Cập nhật kho (Đồng bộ từ file cũ)
+        // 2. Hàm Thêm vào giỏ & Cập nhật kho 
         function addToCart(productId) {
             fetch('@Url.Action("AddToCart", "Cart")', {
                 method: 'POST',

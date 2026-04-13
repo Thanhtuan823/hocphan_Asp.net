@@ -62,20 +62,27 @@ namespace lab2.Controllers
                 order.Status = status;
                 await _context.SaveChangesAsync();
 
+                // Nếu trạng thái đơn hàng chuyển sang Thành công (Success)
                 if (status == OrderStatus.Success)
                 {
-                    var adminUsers = await userManager.GetUsersInRoleAsync("Admin");
-                    foreach (var admin in adminUsers)
+                    // 1. Tìm thông tin khách hàng dựa vào UserId lưu trong đơn hàng
+                    var customer = await userManager.FindByIdAsync(order.UserId);
+
+                    if (customer != null)
                     {
+                        // 2. Tạo nội dung email
                         string htmlContent = GetCompletedOrderHtmlEmail(order);
+
+                        // 3. Gửi mail trực tiếp cho khách hàng (customer.Email)
                         await _emailSender.SendEmailAsync(
-                            admin.Email,
+                            customer.Email,
                             $"[Life & Trees] Đơn hàng #{order.OrderId} đã hoàn tất",
                             htmlContent
                         );
                     }
                 }
             }
+
             TempData["message"] = $"Đã cập nhật trạng thái đơn hàng #{orderId}";
             return RedirectToAction(nameof(Index));
         }
